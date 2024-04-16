@@ -9,9 +9,6 @@ LABEL fly_launch_runtime="Remix"
 # Remix app lives here
 WORKDIR /app
 
-# Set production environment
-ENV NODE_ENV="production"
-
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
@@ -22,7 +19,7 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link pnpm-lock.yaml package.json ./
-RUN pnpm install --no-frozen-lockfile
+RUN pnpm install 
 
 # Copy application code
 COPY --link . .
@@ -30,6 +27,8 @@ COPY --link . .
 # Build application
 RUN pnpm run build
 
+# Set production environment
+ENV NODE_ENV="production"
 # Remove development dependencies
 RUN pnpm prune --prod
 
