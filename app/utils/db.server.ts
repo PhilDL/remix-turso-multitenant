@@ -15,7 +15,7 @@ export function buildDbClient() {
       // syncUrl: url,
       url,
       authToken,
-      encryptionKey: env.SESSION_SECRET,
+      // encryptionKey: env.SESSION_SECRET,
     }),
     {
       schema,
