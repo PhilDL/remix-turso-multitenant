@@ -82,6 +82,6 @@ And store the token in the .env
 
 ```sh
 APP_NAME=tantilument
-TURSO_API_TOKEN=api-token
+TURSO_API_TOKEN=new-api-token
 TURSO_API_URL=https://api.turso.tech
 ```
