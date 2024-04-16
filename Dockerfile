@@ -15,7 +15,7 @@ FROM base as build
 RUN corepack enable
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
-    apt-get install -y build-essential pkg-config python-is-python3
+    apt-get install -y build-essential pkg-config python-is-python3 openssl ca-certificates
 
 # Install node modules
 COPY --link pnpm-lock.yaml package.json ./
