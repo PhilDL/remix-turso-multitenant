@@ -24,7 +24,7 @@ RUN apt-get update -qq && \
 
 # Install node modules
 COPY --link pnpm-lock.yaml package.json ./
-RUN pnpm install
+RUN pnpm install --no-frozen-lockfile
 
 # Copy application code
 COPY --link . .
@@ -38,7 +38,7 @@ RUN pnpm prune --prod
 
 # Final stage for app image
 FROM base
-
+RUN corepack enable
 # Copy built application
 COPY --from=build /app /app
 
