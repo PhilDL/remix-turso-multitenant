@@ -4,8 +4,8 @@ primary_region = "sin"
 
 [build]
 
-[deploy]
-release_command = "pnpm drizzle:migrate"
+# [deploy]
+# release_command = "pnpm drizzle:migrate"
 
 [http_service]
 internal_port = 3000
