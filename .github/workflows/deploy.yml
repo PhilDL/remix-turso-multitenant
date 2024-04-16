@@ -18,69 +18,84 @@ permissions:
 jobs:
   lint:
     name: ⬣ ESLint
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3.0.0
         with:
-          node-version: 20
+          version: 8
+
+      - name: ⎔ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      # - name: 🖼 Build icons
-      #   run: npm run build:icons
+        run: pnpm install --ignore-scripts
 
       - name: 🔬 Lint
-        run: npm run lint
+        run: pnpm run lint
 
   typecheck:
     name: ʦ TypeScript
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3.0.0
         with:
-          node-version: 20
+          version: 8
+
+      - name: ⎔ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
-
-      # - name: 🖼 Build icons
-      #   run: npm run build:icons
+        run: pnpm install
 
       - name: 🔎 Type check
-        run: npm run typecheck --if-present
+        run: pnpm run typecheck --if-present
 
   vitest:
     name: ⚡ Vitest
     runs-on: ubuntu-22.04
     steps:
-      - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+      - name: 🛑 Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.12.1
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3.0.0
         with:
-          node-version: 20
+          version: 8
+
+      - name: ⎔ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: pnpm install
 
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
 
-      # - name: 🖼 Build icons
-      #   run: npm run build:icons
-
       - name: ⚡ Run vitest
-        run: npm run test -- --coverage
+        run: pnpm run test -- --coverage
 
   playwright:
     name: 🎭 Playwright
@@ -88,21 +103,26 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: ⬇️ Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🏄 Copy test env vars
         run: cp .env.example .env
 
-      - name: ⎔ Setup node
-        uses: actions/setup-node@v3
+      - uses: pnpm/action-setup@v3.0.0
         with:
-          node-version: 20
+          version: 8
+
+      - name: ⎔ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: "pnpm"
 
       - name: 📥 Download deps
-        uses: bahmutov/npm-install@v1
+        run: pnpm install
 
       - name: 📥 Install Playwright Browsers
-        run: npm run test:e2e:install
+        run: pnpm run test:e2e:install
 
       # - name: 🛠 Setup Database
       #   run: npx prisma migrate deploy
@@ -123,7 +143,7 @@ jobs:
       #     MINIMAL_SEED: true
 
       - name: 🏗 Build
-        run: npm run build
+        run: pnpm run build
 
       - name: 🎭 Playwright tests
         run: npx playwright test
