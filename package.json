@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run clean && node ./server.mjs",
-    "build": "pnpm run clean && remix vite:build",
+    "build": "remix vite:build",
     "build:icons": "tsx ./scripts/build-icons.ts",
     "start": "cross-env NODE_ENV=production node ./server.mjs",
     "start:mocks": "cross-env NODE_ENV=production MOCKS=true node server.mjs",
