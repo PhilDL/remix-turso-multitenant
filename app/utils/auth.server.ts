@@ -25,7 +25,6 @@ authenticator.use(
   new FormStrategy(async ({ form }) => {
     let username = form.get("username") as string;
     let password = form.get("password") as string;
-    console.log({ username, password });
     let user = await login({ username, password });
     if (!user) throw new Error("Invalid email or password");
     return user;

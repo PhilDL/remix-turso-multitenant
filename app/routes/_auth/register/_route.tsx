@@ -28,7 +28,6 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   const newOrganization = await register(submission.value);
-  console.log("newOrganization", newOrganization);
 
   // Send the submission with addional error message if login fails
   if (!newOrganization) {
@@ -86,14 +85,14 @@ export default function RegisterForm() {
       </h1>
       <Form
         method="post"
-        className="border-input bg-card flex w-[28rem] flex-col gap-3 rounded-md border p-8"
+        className="flex w-[28rem] flex-col gap-3 rounded-md border border-input bg-card p-8"
         {...getFormProps(form)}
       >
         <div className="flex flex-col gap-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             Register
           </h3>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-xs text-muted-foreground">
             Create your own space on the web with Tantilument.
           </p>
         </div>
@@ -107,12 +106,12 @@ export default function RegisterForm() {
               setSlugPreview(toSlug(e.currentTarget.value));
             }}
           />
-          <p className="text-muted-foreground font-mono text-xs">
+          <p className="font-mono text-xs text-muted-foreground">
             {slugPreview}
           </p>
           <div
             id={fields.username.errorId}
-            className="text-destructive max-w-md text-xs "
+            className="max-w-md text-xs text-destructive "
           >
             {fields.username.errors}
           </div>
@@ -120,14 +119,14 @@ export default function RegisterForm() {
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.name.id}>Name</Label>
           <Input {...getInputProps(fields.name, { type: "text" })} />
-          <div id={fields.name.errorId} className="text-destructive text-xs">
+          <div id={fields.name.errorId} className="text-xs text-destructive">
             {fields.name.errors}
           </div>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.email.id}>Email</Label>
           <Input {...getInputProps(fields.email, { type: "email" })} />
-          <div id={fields.email.errorId} className="text-destructive text-xs">
+          <div id={fields.email.errorId} className="text-xs text-destructive">
             {fields.email.errors}
           </div>
         </div>
@@ -136,7 +135,7 @@ export default function RegisterForm() {
           <Input {...getInputProps(fields.password, { type: "password" })} />
           <div
             id={fields.password.errorId}
-            className="text-destructive text-xs"
+            className="text-xs text-destructive"
           >
             {fields.password.errors}
           </div>
@@ -148,7 +147,7 @@ export default function RegisterForm() {
           />
           <div
             id={fields.passwordConfirm.errorId}
-            className="text-destructive text-xs"
+            className="text-xs text-destructive"
           >
             {fields.passwordConfirm.errors}
           </div>
@@ -156,7 +155,7 @@ export default function RegisterForm() {
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.website.id}>Website</Label>
           <Input {...getInputProps(fields.website, { type: "text" })} />
-          <div id={fields.website.errorId} className="text-destructive text-xs">
+          <div id={fields.website.errorId} className="text-xs text-destructive">
             {fields.website.errors}
           </div>
         </div>

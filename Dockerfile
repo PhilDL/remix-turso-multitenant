@@ -35,6 +35,8 @@ RUN pnpm prune --prod
 
 # Final stage for app image
 FROM base
+RUN apt-get update -qq && \
+    apt-get install -y openssl ca-certificates
 RUN corepack enable
 # Copy built application
 COPY --from=build /app /app
