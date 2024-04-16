@@ -11,8 +11,9 @@ export function buildDbClient() {
 
   return drizzle(
     createClient({
-      url: local,
-      syncUrl: url,
+      // url: local,
+      // syncUrl: url,
+      url,
       authToken,
       encryptionKey: env.SESSION_SECRET,
     }),
