@@ -25,7 +25,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body suppressHydrationWarning className="dark">
+      <body
+        suppressHydrationWarning
+        className="dark h-full min-h-screen w-full"
+      >
         {children}
         <ScrollRestoration />
         <Scripts />

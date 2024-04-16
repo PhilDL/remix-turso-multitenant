@@ -75,6 +75,17 @@ export async function requireUser(
   return user;
 }
 
+export async function requireUserDbURL(
+  request: Request,
+  { redirectTo }: { redirectTo?: string | null } = {},
+) {
+  const user = await requireUser(request, { redirectTo });
+  if (!user.dbUrl) {
+    throw new Error("This user doesn't have a database");
+  }
+  return user.dbUrl;
+}
+
 export async function getPasswordHash(password: string) {
   const hash = await bcrypt.hash(password, 10);
   return hash;

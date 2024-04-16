@@ -5,6 +5,7 @@ export const env = createEnv({
   server: {
     SESSION_SECRET: z.string().min(1),
     TURSO_DB_AUTH_TOKEN: z.string().min(1),
+    TURSO_LOCAL_DB: z.string().min(1),
     TURSO_DB_URL: z.string().url(),
     TURSO_API_TOKEN: z.string().min(1),
     TURSO_API_URL: z.string().url(),
