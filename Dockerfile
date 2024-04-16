@@ -3,7 +3,7 @@
 # Adjust NODE_VERSION as desired
 ARG NODE_VERSION=20.11.0
 FROM node:${NODE_VERSION}-slim as base
-
+RUN corepack enable
 LABEL fly_launch_runtime="Remix"
 
 # Remix app lives here
@@ -15,8 +15,6 @@ ENV NODE_ENV="production"
 
 # Throw-away build stage to reduce size of final image
 FROM base as build
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 # Install packages needed to build node modules
 RUN apt-get update -qq && \
