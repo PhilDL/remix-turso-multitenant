@@ -1,4 +1,4 @@
-import { createClient } from "@libsql/client/http";
+import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 
 import { env } from "~/env.server";
@@ -11,9 +11,8 @@ export function buildDbClient() {
 
   return drizzle(
     createClient({
-      // url: local,
-      // syncUrl: url,
-      url,
+      url: local,
+      syncUrl: url,
       authToken,
       encryptionKey: env.SESSION_SECRET,
     }),
