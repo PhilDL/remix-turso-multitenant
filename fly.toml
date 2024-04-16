@@ -1,5 +1,5 @@
 app = "remix-turso-multitenant"
-primary_region = "cdg"
+primary_region = "sin"
 
 [build]
 
