@@ -41,6 +41,7 @@ RUN corepack enable
 # Copy built application
 COPY --from=build /app /app
 RUN mkdir -p /data
+RUN pnpm drizzle:migrate
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
