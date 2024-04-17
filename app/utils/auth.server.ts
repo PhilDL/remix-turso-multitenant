@@ -46,7 +46,7 @@ export async function requireUserId(
   const loginParams = redirectTo
     ? new URLSearchParams([["redirectTo", redirectTo]])
     : null;
-  const failureRedirect = ["/admin/login", loginParams?.toString()]
+  const failureRedirect = ["/login", loginParams?.toString()]
     .filter(Boolean)
     .join("?");
   const user = await authenticator.isAuthenticated(request, {
