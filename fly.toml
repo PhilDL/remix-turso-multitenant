@@ -8,8 +8,8 @@ primary_region = 'sin'
 
 [build]
 
-# [deploy]
-# release_command = 'pnpm run drizzle:migrate'
+[deploy]
+release_command = 'pnpm run drizzle:migrate'
 
 [[mounts]]
 source = 'data'
