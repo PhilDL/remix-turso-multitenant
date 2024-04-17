@@ -33,7 +33,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return await authenticator.authenticate("user-pass", clonedRequest, {
-    successRedirect: "/dashboard",
+    successRedirect: "/app/dashboard",
     failureRedirect: "/login",
   });
 }
@@ -59,14 +59,14 @@ export default function LoginForm() {
       </h1>
       <Form
         method="post"
-        className="border-input bg-card flex w-[28rem] flex-col gap-3 rounded-md border p-8"
+        className="flex w-[28rem] flex-col gap-3 rounded-md border border-input bg-card p-8"
         {...getFormProps(form)}
       >
         <div className="flex flex-col gap-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
             Log-in
           </h3>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-xs text-muted-foreground">
             Log-in to access your personal dashboard.
           </p>
         </div>
@@ -77,7 +77,7 @@ export default function LoginForm() {
           <Input {...getInputProps(fields.username, { type: "text" })} />
           <div
             id={fields.username.errorId}
-            className="text-destructive max-w-md text-xs "
+            className="max-w-md text-xs text-destructive "
           >
             {fields.username.errors}
           </div>
@@ -87,7 +87,7 @@ export default function LoginForm() {
           <Input {...getInputProps(fields.password, { type: "password" })} />
           <div
             id={fields.password.errorId}
-            className="text-destructive text-xs"
+            className="text-xs text-destructive"
           >
             {fields.password.errors}
           </div>
