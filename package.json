@@ -8,7 +8,6 @@
     "dev": "pnpm run clean && node ./server.mjs",
     "build": "remix vite:build",
     "build:icons": "tsx ./scripts/build-icons.ts",
-    "migrate-start": "pnpm run drizzle:migrate && pnpm run start",
     "start": "cross-env NODE_ENV=production node ./server.mjs",
     "start:mocks": "cross-env NODE_ENV=production MOCKS=true node server.mjs",
     "test": "vitest",
