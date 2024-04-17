@@ -30,7 +30,7 @@
     "contributors:generate": "all-contributors generate",
     "drizzle:generate": "drizzle-kit generate:sqlite --out ./drizzle/migrations --breakpoints --schema=./drizzle/schema.ts",
     "drizzle:generate:tenants": "drizzle-kit generate:sqlite --out ./drizzle/migrations-tenants --breakpoints --schema=./drizzle/tenant-schema.ts",
-    "drizzle:migrate": "tsx drizzle/migrate",
+    "drizzle:migrate": "cross-env tsx drizzle/migrate",
     "drizzle:migrate:tenant": "cross-env tsx drizzle/migrate-tenant",
     "drizzle:studio": "drizzle-kit studio"
   },
