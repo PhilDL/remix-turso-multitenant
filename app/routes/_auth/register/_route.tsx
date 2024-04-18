@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { createId } from "@paralleldrive/cuid2";
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import { eq } from "drizzle-orm";
-import { organizations } from "drizzle/schema";
+import { Form, Link, useActionData } from "@remix-run/react";
 
-import { buildDbClient } from "~/utils/db.server";
-import { createOrganizationDatabase } from "~/utils/turso.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -26,41 +23,9 @@ export async function action({ request }: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return submission.reply();
   }
-
-  const newOrganization = await register(submission.value);
-
-  // Send the submission with addional error message if login fails
-  if (!newOrganization) {
-    return submission.reply({
-      formErrors: ["Incorrect username or password"],
-    });
-  }
-
-  const organizationDatabase =
-    await createOrganizationDatabase(newOrganization);
-
-  if (!organizationDatabase.ok) {
-    await buildDbClient()
-      .delete(organizations)
-      .where(eq(organizations.id, newOrganization.id));
-    return submission.reply({
-      formErrors: ["Failed to create organization database"],
-    });
-  }
-
-  if (organizationDatabase.ok && organizationDatabase.data !== null) {
-    await buildDbClient()
-      .update(organizations)
-      .set({
-        dbUrl: organizationDatabase.data.url,
-      })
-      .where(eq(organizations.id, newOrganization.id));
-    return redirect("/login");
-  }
-
-  return submission.reply({
-    formErrors: ["Failed to create organization database"],
-  });
+  const creationId = createId();
+  void register(submission.value, creationId);
+  throw redirect(`/organization-creation/${creationId}`);
 }
 
 // Client form component
@@ -161,6 +126,15 @@ export default function RegisterForm() {
         </div>
 
         <Button type="submit">Register</Button>
+        <div className="mt-4 text-sm text-muted-foreground">
+          Already have an account?{" "}
+          <Link
+            to="/login"
+            className="font-bold text-accent-foreground underline"
+          >
+            Login here
+          </Link>
+        </div>
       </Form>
     </div>
   );

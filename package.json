@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "pnpm run clean && node ./server.mjs",
-    "build": "remix vite:build",
+    "build": "pnpm run clean && remix vite:build",
     "build:icons": "tsx ./scripts/build-icons.ts",
     "start": "cross-env NODE_ENV=production node ./server.mjs",
     "start:mocks": "cross-env NODE_ENV=production MOCKS=true node server.mjs",
@@ -42,6 +42,7 @@
   "dependencies": {
     "@conform-to/react": "^1.1.0",
     "@conform-to/zod": "^1.1.0",
+    "@epic-web/remember": "^1.0.2",
     "@libsql/client": "^0.6.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "@radix-ui/react-label": "^2.0.2",
@@ -67,6 +68,7 @@
     "remix-auth": "^3.6.0",
     "remix-auth-form": "^1.4.0",
     "remix-typedjson": "^0.4.1",
+    "remix-utils": "^7.6.0",
     "slugify": "^1.6.6",
     "tailwind-merge": "^2.2.2",
     "tailwindcss-animate": "^1.0.7",

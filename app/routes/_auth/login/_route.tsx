@@ -5,10 +5,17 @@ import {
   type ActionFunctionArgs,
   type LoaderFunctionArgs,
 } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import {
+  Form,
+  Link,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import { z } from "zod";
 
 import { authenticator, requireAnonymous } from "~/utils/auth.server";
+import { commitSession, getSession } from "~/utils/session.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -20,7 +27,16 @@ export const LoginFormSchema = z.object({
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireAnonymous(request);
-  return json({});
+  let session = await getSession(request.headers.get("cookie"));
+  let error = session.get(authenticator.sessionErrorKey);
+  return json(
+    { error },
+    {
+      headers: {
+        "Set-Cookie": await commitSession(session), // You must commit the session whenever you read a flash
+      },
+    },
+  );
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -41,6 +57,8 @@ export async function action({ request }: ActionFunctionArgs) {
 // Client form component
 export default function LoginForm() {
   const lastResult = useActionData<typeof action>();
+  const { error } = useLoaderData<typeof loader>();
+  const navigation = useNavigation();
 
   const [form, fields] = useForm({
     lastResult,
@@ -71,7 +89,7 @@ export default function LoginForm() {
           </p>
         </div>
 
-        <div>{form.errors}</div>
+        <div className="text-sm text-destructive">{form.errors}</div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.username.id}>Username</Label>
           <Input {...getInputProps(fields.username, { type: "text" })} />
@@ -92,7 +110,21 @@ export default function LoginForm() {
             {fields.password.errors}
           </div>
         </div>
-        <Button type="submit">Login</Button>
+        {error && (
+          <div className="text-sm text-destructive">{error.message}</div>
+        )}
+        <Button type="submit" disabled={navigation.state !== "idle"}>
+          Login {navigation.state === "submitting" && "..."}
+        </Button>
+        <div className="mt-4 text-sm text-muted-foreground">
+          Don't have an account yet?{" "}
+          <Link
+            to="/register"
+            className="font-bold text-accent-foreground underline"
+          >
+            Register here
+          </Link>
+        </div>
       </Form>
     </div>
   );
