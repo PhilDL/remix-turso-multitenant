@@ -7,7 +7,6 @@ import { ExternalScriptsHandle } from "remix-utils/external-scripts";
 import { requireUserId } from "~/utils/auth.server";
 import { syncSubscriptionPlans } from "~/utils/lemonsequeezy.server";
 import { SignupButton } from "~/components/subscription-button";
-import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { useNavigate } from "@remix-run/react";
+import { useFetcher, useNavigate } from "@remix-run/react";
 import type { NewPlan } from "drizzle/schema";
-import { useFetcher } from "react-router-dom";
 
+import type { action } from "~/routes/resources+/checkout";
 import { Button } from "./ui/button";
 
 export function SignupButton({
@@ -14,7 +14,7 @@ export function SignupButton({
   currentPlan?: NewPlan;
   embed?: boolean;
 }) {
-  const fetcher = useFetcher({ key: `checkout-${plan.id}` });
+  const fetcher = useFetcher<typeof action>({ key: `checkout-${plan.id}` });
   const isCurrent = plan.id === currentPlan?.id;
   const navigate = useNavigate();
 
