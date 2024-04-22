@@ -8,6 +8,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { ExternalScripts } from "remix-utils/external-scripts";
 
 import DefaultErrorBoundary from "~/components/ui/error-boundary";
 import iconsHref from "~/components/ui/icons/sprite.svg?url";
@@ -31,6 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       >
         {children}
         <ScrollRestoration />
+        <ExternalScripts />
         <Scripts />
       </body>
     </html>

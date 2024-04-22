@@ -15,6 +15,13 @@ export const env = createEnv({
     TURSO_APP_GROUP: z.string().min(1),
     APP_NAME: z.string().min(1),
     APP_PRIMARY_LOCATION: z.string().min(1),
+    LEMONSQUEEZY_API_KEY: z.string().min(1),
+    LEMONSQUEEZY_STORE_ID: z.string().min(1),
+    PUBLIC_APP_URL: z
+      .string()
+      .url()
+      .optional()
+      .default("http://localhost:3000"),
   },
   runtimeEnv: process.env,
 });

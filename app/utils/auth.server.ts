@@ -66,6 +66,7 @@ export async function requireUser(
       id: true,
       username: true,
       dbUrl: true,
+      email: true,
     },
   });
   if (!user) {

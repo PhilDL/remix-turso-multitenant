@@ -29,3 +29,22 @@ export const organizations = sqliteTable(
 );
 
 export type SelectOrganizations = typeof organizations.$inferSelect;
+
+export const plans = sqliteTable("plans", {
+  id: text("id").primaryKey(),
+  productId: text("productId").notNull(),
+  productName: text("productName"),
+  variantId: text("variantId").notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  price: text("price").notNull(),
+  isUsageBased: integer("isUsageBased", { mode: "boolean" }).default(false),
+  interval: text("interval"),
+  intervalCount: integer("intervalCount"),
+  trialInterval: text("trialInterval"),
+  trialIntervalCount: integer("trialIntervalCount"),
+  sort: integer("sort"),
+});
+
+export type NewPlan = typeof plans.$inferInsert;
+export type SelectPlans = typeof plans.$inferSelect;

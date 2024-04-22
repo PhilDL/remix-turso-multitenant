@@ -17,6 +17,9 @@ importers:
       '@epic-web/remember':
         specifier: ^1.0.2
         version: 1.0.2
+      '@lemonsqueezy/lemonsqueezy.js':
+        specifier: ^2.2.0
+        version: 2.2.0
       '@libsql/client':
         specifier: ^0.6.0
         version: 0.6.0
@@ -1146,6 +1149,10 @@ packages:
 
   '@jspm/core@2.0.1':
     resolution: {integrity: sha512-Lg3PnLp0QXpxwLIAuuJboLeRaIhrgJjeuh797QADg3xz8wGLugQOS5DpsE8A6i6Adgzf+bacllkKZG3J0tGfDw==}
+
+  '@lemonsqueezy/lemonsqueezy.js@2.2.0':
+    resolution: {integrity: sha512-DsZTeowehSLTESUZ6xxoYPDhoE8BYepWsj3TCqibG7FvB8X1HERPXQlc6E/IeGj22SOfIM997b7GfFkeLWY8pA==}
+    engines: {node: '>=18'}
 
   '@libsql/client@0.6.0':
     resolution: {integrity: sha512-qhQzTG/y2IEVbL3+9PULDvlQFWJ/RnjFXECr/Nc3nRngGiiMysDaOV5VUzYk7DulUX98EA4wi+z3FspKrUplUA==}
@@ -6605,6 +6612,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.4.15
 
   '@jspm/core@2.0.1': {}
+
+  '@lemonsqueezy/lemonsqueezy.js@2.2.0': {}
 
   '@libsql/client@0.6.0':
     dependencies:
