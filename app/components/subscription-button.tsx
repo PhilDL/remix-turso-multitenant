@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useFetcher, useNavigate } from "@remix-run/react";
+import { Form, useFetcher, useNavigate, useNavigation } from "@remix-run/react";
 import type { NewPlan } from "drizzle/schema";
 
 import type { action } from "~/routes/resources+/checkout";
@@ -17,30 +17,40 @@ export function SignupButton({
   const fetcher = useFetcher<typeof action>({ key: `checkout-${plan.id}` });
   const isCurrent = plan.id === currentPlan?.id;
   const navigate = useNavigate();
+  const navigation = useNavigation();
 
   const label = isCurrent ? "Your plan" : "Sign up";
 
   useEffect(() => {
-    if (fetcher.data && fetcher.data.checkoutURL) {
-      embed
-        ? window.LemonSqueezy.Url.Open(fetcher.data.checkoutURL)
-        : navigate(fetcher.data.checkoutURL);
+    if (embed && fetcher.data && fetcher.data.checkoutURL) {
+      window.LemonSqueezy.Url.Open(fetcher.data.checkoutURL);
     }
   }, [fetcher.data, embed, navigate]);
 
   // Make sure Lemon.js is loaded, you need to enqueue the Lemon Squeezy SDK in your app first.
   useEffect(() => {
-    if (typeof window.createLemonSqueezy === "function") {
+    if (embed && typeof window.createLemonSqueezy === "function") {
       window.createLemonSqueezy();
     }
-  }, []);
+  }, [embed]);
 
+  if (embed)
+    return (
+      <fetcher.Form method="POST" action="/resources/checkout">
+        <input type="hidden" name="planId" value={plan.variantId} />
+        <input type="hidden" name="embed" value={String(embed)} />
+        <Button disabled={isCurrent || fetcher.state !== "idle"} type="submit">
+          {label}
+        </Button>
+      </fetcher.Form>
+    );
   return (
-    <fetcher.Form method="POST" action="/resources/checkout">
+    <Form method="POST" action="/resources/checkout">
       <input type="hidden" name="planId" value={plan.variantId} />
-      <Button disabled={isCurrent || fetcher.state !== "idle"} type="submit">
+      <input type="hidden" name="embed" value={String(embed)} />
+      <Button disabled={isCurrent || navigation.state !== "idle"} type="submit">
         {label}
       </Button>
-    </fetcher.Form>
+    </Form>
   );
 }

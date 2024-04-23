@@ -111,7 +111,7 @@ export const syncSubscriptionPlans = async () => {
 export const createCheckoutURL = async (
   planId: string,
   {
-    embed = false,
+    embed = true,
     userId,
     email,
   }: { userId?: string; embed?: boolean; email?: string },
@@ -137,6 +137,7 @@ export const createCheckoutURL = async (
       receiptThankYouNote: "Thank you for signing up to Tantilument",
     },
   });
+  console.log(checkout.data?.data.attributes);
 
   return checkout.data?.data.attributes.url;
 };
