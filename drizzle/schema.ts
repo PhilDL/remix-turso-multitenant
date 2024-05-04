@@ -48,3 +48,41 @@ export const plans = sqliteTable("plans", {
 
 export type NewPlan = typeof plans.$inferInsert;
 export type SelectPlans = typeof plans.$inferSelect;
+
+export const subscriptions = sqliteTable("subscription", {
+  id: text("id").primaryKey(),
+  lemonSqueezyId: text("lemonSqueezyId").unique().notNull(),
+  orderId: integer("orderId").notNull(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  status: text("status").notNull(),
+  statusFormatted: text("statusFormatted").notNull(),
+  renewsAt: text("renewsAt"),
+  endsAt: text("endsAt"),
+  trialEndsAt: text("trialEndsAt"),
+  price: text("price").notNull(),
+  isUsageBased: integer("isUsageBased", { mode: "boolean" }).default(false),
+  isPaused: integer("isPaused", { mode: "boolean" }).default(false),
+  subscriptionItemId: text("subscriptionItemId"),
+  organizationId: text("organizationId")
+    .notNull()
+    .references(() => organizations.id),
+  planId: text("planId")
+    .notNull()
+    .references(() => plans.id),
+});
+
+export type SubscriptionCreate = typeof subscriptions.$inferInsert;
+export type Subscription = typeof subscriptions.$inferSelect;
+
+export const webhookEvents = sqliteTable("webhookEvent", {
+  id: text("id").primaryKey(),
+  createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
+  eventName: text("eventName").notNull(),
+  processed: integer("processed", { mode: "boolean" }).default(false),
+  body: text("body", { mode: "json" }).notNull(),
+  processingError: text("processingError"),
+});
+
+export type WebhookEventCreate = typeof webhookEvents.$inferInsert;
+export type WebhookEvent = typeof webhookEvents.$inferSelect;

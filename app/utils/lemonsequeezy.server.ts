@@ -1,16 +1,22 @@
 import {
   createCheckout,
+  createWebhook,
+  getPrice,
   getProduct,
   lemonSqueezySetup,
   listPrices,
   listProducts,
-  Variant,
+  listWebhooks,
+  type Variant,
 } from "@lemonsqueezy/lemonsqueezy.js";
-import { createId } from "@paralleldrive/cuid2";
-import { NewPlan, plans } from "drizzle/schema";
+import { type WebhookEvent } from "drizzle/schema";
 
+import { PlansModel } from "~/models/plans.server";
+import { SubscriptionsModel } from "~/models/subscriptions.server";
+import { WebhookEventModel } from "~/models/webhook-event.server";
 import { env } from "~/env.server";
 import { buildDbClient } from "./db.server";
+import { EventBodyWithData, EventsSchema } from "./lemonsqueezy.schema";
 
 export const configureLemonSqueezy = () => {
   lemonSqueezySetup({
@@ -23,20 +29,12 @@ export const configureLemonSqueezy = () => {
   });
 };
 
-export const upsertPlan = async (plan: NewPlan) => {
-  await buildDbClient()
-    .insert(plans)
-    .values(plan)
-    .onConflictDoUpdate({ target: plans.variantId, set: plan });
-};
-
 export const syncSubscriptionPlans = async () => {
   configureLemonSqueezy();
   const products = await listProducts({
     filter: { storeId: process.env.LEMONSQUEEZY_STORE_ID },
     include: ["variants"],
   });
-  console.log(products.data?.data?.map((p) => p.attributes));
 
   const allVariants = products.data?.included as Variant["data"][] | undefined;
   if (!allVariants) {
@@ -89,8 +87,7 @@ export const syncSubscriptionPlans = async () => {
       continue;
     }
 
-    await upsertPlan({
-      id: createId(),
+    await PlansModel.upsert({
       name: variant.name,
       description: variant.description,
       price: priceString,
@@ -99,7 +96,7 @@ export const syncSubscriptionPlans = async () => {
       isUsageBased,
       productId: String(variant.product_id),
       productName,
-      variantId: v.id,
+      variantId: String(v.id),
       trialInterval,
       trialIntervalCount,
       sort: variant.sort,
@@ -141,3 +138,139 @@ export const createCheckoutURL = async (
 
   return checkout.data?.data.attributes.url;
 };
+
+export async function getPublishedWebhooks({
+  testMode = true,
+}: {
+  testMode: boolean;
+}) {
+  configureLemonSqueezy();
+  const allWebhooks = await listWebhooks({
+    filter: { storeId: env.LEMONSQUEEZY_STORE_ID },
+  });
+  const url = new URL(
+    "resources/lemonsqueezy/webhook",
+    env.PUBLIC_APP_URL,
+  ).toString();
+  const webhook = allWebhooks.data?.data.find(
+    (wh) => wh.attributes.url === url && wh.attributes.test_mode === testMode,
+  );
+
+  return webhook;
+}
+
+export async function setupWebhook({ testMode = true }: { testMode: boolean }) {
+  configureLemonSqueezy();
+
+  const webhookURL = new URL(
+    "resources/lemonsqueezy/webhook",
+    env.PUBLIC_APP_URL,
+  ).toString();
+
+  const existingWebhooks = await getPublishedWebhooks({ testMode });
+  if (existingWebhooks) {
+    console.log("Webhook already exists on Lemon Squeezy.");
+    return existingWebhooks;
+  }
+
+  const newWebhook = await createWebhook(env.LEMONSQUEEZY_STORE_ID, {
+    secret: env.LEMONSQUEEZY_WEBHOOK_SECRET,
+    url: webhookURL,
+    testMode,
+    events: [
+      "subscription_created",
+      "subscription_expired",
+      "subscription_updated",
+    ],
+  });
+
+  return newWebhook.data?.data;
+}
+
+export async function processWebhookEvent(webhookEvent: WebhookEvent) {
+  configureLemonSqueezy();
+
+  let processingError = "";
+  const parsedEventBody = EventBodyWithData.passthrough().safeParse(
+    webhookEvent.body,
+  );
+  const eventName = EventsSchema.parse(webhookEvent.eventName);
+
+  if (parsedEventBody.success === false) {
+    return await WebhookEventModel.update({
+      ...webhookEvent,
+      processed: true,
+      processingError: "Invalid event body.",
+    });
+  }
+  const eventBody = parsedEventBody.data;
+  console.log("Processing event", eventName, eventBody);
+  switch (eventName) {
+    case "subscription_created":
+    case "subscription_updated":
+    case "subscription_expired":
+    case "subscription_cancelled":
+    case "subscription_paused":
+    case "subscription_unpaused":
+    case "subscription_resumed":
+      const attributes = eventBody.data.attributes;
+      const variantId = String(attributes.variant_id);
+
+      // We assume that the Plan table is up to date.
+      const plan = await PlansModel.getByVariantId(variantId);
+      if (!plan) {
+        processingError = `Plan with variantId ${variantId} not found.`;
+        console.error(processingError);
+        break;
+      }
+
+      // Update the subscription in the database.
+
+      const priceId = attributes.first_subscription_item.price_id;
+
+      // Get the price data from Lemon Squeezy.
+      const priceData = await getPrice(priceId);
+      if (priceData.error) {
+        processingError = `Failed to get the price data for the subscription ${eventBody.data.id}.`;
+      }
+
+      const isUsageBased = attributes.first_subscription_item.is_usage_based;
+      const price = isUsageBased
+        ? priceData.data?.data.attributes.unit_price_decimal
+        : priceData.data?.data.attributes.unit_price;
+      const lemonSqueezyId = eventBody.data.id;
+
+      // Create/update subscription in the database.
+      try {
+        console.log("upsert SUBSCRIPTION");
+        await SubscriptionsModel.upsertOnLSId({
+          lemonSqueezyId,
+          orderId: attributes.order_id as number,
+          name: attributes.user_name as string,
+          email: attributes.user_email as string,
+          status: attributes.status as string,
+          statusFormatted: attributes.status_formatted as string,
+          renewsAt: attributes.renews_at as string,
+          endsAt: attributes.ends_at as string,
+          trialEndsAt: attributes.trial_ends_at as string,
+          price: price?.toString() ?? "",
+          isPaused: false,
+          subscriptionItemId: String(attributes.first_subscription_item.id),
+          isUsageBased: attributes.first_subscription_item.is_usage_based,
+          organizationId: eventBody.meta.custom_data.user_id,
+          planId: plan.id,
+        });
+      } catch (error) {
+        processingError = `Failed to upsert Subscription #${lemonSqueezyId} to the database.`;
+        console.error(error);
+      }
+      break;
+    default:
+      break;
+  }
+  return await WebhookEventModel.update({
+    ...webhookEvent,
+    processed: true,
+    processingError,
+  });
+}

@@ -15,6 +15,13 @@
       "when": 1713457742316,
       "tag": "0001_dizzy_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1714837222382,
+      "tag": "0002_freezing_vector",
+      "breakpoints": true
     }
   ]
 }

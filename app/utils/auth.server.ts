@@ -6,6 +6,7 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 
 import { authSessionStorage } from "~/utils/session.server";
+import { SubscriptionsModel } from "~/models/subscriptions.server";
 import { buildDbClient } from "./db.server";
 
 export type User = typeof organizations.$inferSelect;
@@ -60,19 +61,26 @@ export async function requireUser(
   { redirectTo }: { redirectTo?: string | null } = {},
 ) {
   const userId = await requireUserId(request, { redirectTo });
-  const user = await buildDbClient().query.organizations.findFirst({
-    where: eq(organizations.id, userId),
-    columns: {
-      id: true,
-      username: true,
-      dbUrl: true,
-      email: true,
-    },
-  });
+  const [user, subscription] = await Promise.all([
+    buildDbClient().query.organizations.findFirst({
+      where: eq(organizations.id, userId),
+      columns: {
+        id: true,
+        username: true,
+        dbUrl: true,
+        email: true,
+      },
+    }),
+    SubscriptionsModel.getByOrganizationId(userId),
+  ]);
   if (!user) {
     throw new Error("User not found");
   }
-  return user;
+  return {
+    ...user,
+    subscriptionId: subscription?.id,
+    planId: subscription?.planId,
+  };
 }
 
 export async function requireUserDbURL(

@@ -1,10 +1,10 @@
 import { Suspense } from "react";
-import { defer, LoaderFunctionArgs } from "@remix-run/node";
+import { defer, type LoaderFunctionArgs } from "@remix-run/node";
 import { Await, useLoaderData } from "@remix-run/react";
 import { type NewPlan } from "drizzle/schema";
-import { ExternalScriptsHandle } from "remix-utils/external-scripts";
+import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
-import { requireUserId } from "~/utils/auth.server";
+import { requireUser } from "~/utils/auth.server";
 import { syncSubscriptionPlans } from "~/utils/lemonsequeezy.server";
 import { SignupButton } from "~/components/subscription-button";
 import {
@@ -28,16 +28,20 @@ export let handle: ExternalScriptsHandle = {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  await requireUserId(request);
-  return defer({ plans: syncSubscriptionPlans() });
+  const user = await requireUser(request);
+  console.log(user);
+  return defer({
+    plans: syncSubscriptionPlans(),
+    user,
+  });
 };
 
 export default function Dashboard() {
-  const { plans } = useLoaderData<typeof loader>();
+  const { plans, user } = useLoaderData<typeof loader>();
   return (
     <div>
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        Dashboard
+        Dashboard for {user.username}
       </h2>
       <Suspense
         fallback={
@@ -61,7 +65,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-semibold">Plans</h3>
               <div className="mb-5 mt-3 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
                 {plans.map((plan) => (
-                  <Plan plan={plan} key={plan.id} />
+                  <Plan plan={plan} key={plan.id} userPlanId={user.planId} />
                 ))}
               </div>
             </div>
@@ -84,7 +88,13 @@ export function formatPrice(priceInCents: string) {
   }).format(dollars);
 }
 
-export const Plan = ({ plan }: { plan: NewPlan }) => {
+export const Plan = ({
+  plan,
+  userPlanId,
+}: {
+  plan: NewPlan;
+  userPlanId?: string;
+}) => {
   const { description, productName, name, price } = plan;
 
   return (
@@ -114,7 +124,11 @@ export const Plan = ({ plan }: { plan: NewPlan }) => {
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        <SignupButton plan={plan} />
+        {userPlanId === plan.id ? (
+          <span className="text-accent-foreground">Current Plan</span>
+        ) : (
+          <SignupButton plan={plan} />
+        )}
       </CardFooter>
     </Card>
   );
