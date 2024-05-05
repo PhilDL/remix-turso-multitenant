@@ -6,13 +6,13 @@ import {
   type WebhookEventCreate,
 } from "drizzle/schema";
 
-import { buildDbClient } from "~/utils/db.server";
+import { serviceDb } from "~/utils/db.server";
 
-export const WebhookEventModel = {
+export const WebhookEventsModel = {
   create: async (
     data: Omit<WebhookEventCreate, "id">,
   ): Promise<WebhookEvent> => {
-    return await buildDbClient()
+    return await serviceDb()
       .insert(webhookEvents)
       .values({
         id: createId(),
@@ -28,7 +28,7 @@ export const WebhookEventModel = {
   update: async (
     data: Partial<WebhookEvent> & Pick<WebhookEvent, "id">,
   ): Promise<WebhookEvent> => {
-    return await buildDbClient()
+    return await serviceDb()
       .update(webhookEvents)
       .set(data)
       .where(eq(webhookEvents.id, data.id))

@@ -6,8 +6,8 @@ import { cn } from "~/utils";
 export default function AppLayout() {
   return (
     <div className="flex h-full min-h-screen w-full flex-row">
-      <aside className="border-r-input flex h-full min-h-screen w-56 flex-col justify-start gap-8 border-r p-4">
-        <h1 className="text-2xl font-bold">Tantilument</h1>
+      <aside className="flex h-full min-h-screen w-56 flex-col justify-start gap-8 border-r border-r-input p-4">
+        <h1 className="text-2xl font-bold">Multenant</h1>
 
         <nav className="flex flex-1 flex-col justify-start">
           <ul className="flex flex-col gap-2">
@@ -15,7 +15,7 @@ export default function AppLayout() {
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    "text-muted-foreground hover:text-underline",
+                    "hover:text-underline text-muted-foreground",
                     isActive && "text-primary",
                   )
                 }
@@ -42,7 +42,7 @@ export default function AppLayout() {
         </nav>
       </aside>
       <div className="flex h-full w-full flex-col">
-        <nav className="border-b-input flex h-32 flex-1 flex-row justify-end border-b px-4 py-2">
+        <nav className="flex h-32 flex-1 flex-row justify-end border-b border-b-input px-4 py-2">
           <Form method="post" action="/logout">
             <Button type="submit" variant={"secondary"} size="sm">
               Logout

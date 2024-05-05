@@ -13,9 +13,8 @@ import { type WebhookEvent } from "drizzle/schema";
 
 import { PlansModel } from "~/models/plans.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
-import { WebhookEventModel } from "~/models/webhook-event.server";
+import { WebhookEventsModel } from "~/models/webhook-events.server";
 import { env } from "~/env.server";
-import { buildDbClient } from "./db.server";
 import { EventBodyWithData, EventsSchema } from "./lemonsqueezy.schema";
 
 export const configureLemonSqueezy = () => {
@@ -102,7 +101,7 @@ export const syncSubscriptionPlans = async () => {
       sort: variant.sort,
     });
   }
-  return await buildDbClient().query.plans.findMany();
+  return await PlansModel.getAll();
 };
 
 export const createCheckoutURL = async (
@@ -131,7 +130,7 @@ export const createCheckoutURL = async (
       enabledVariants: [Number(planId)],
       redirectUrl: `${env.PUBLIC_APP_URL}/app/dashboard/`,
       receiptButtonText: "Go to Dashboard",
-      receiptThankYouNote: "Thank you for signing up to Tantilument",
+      receiptThankYouNote: "Thank you for signing up to Multenant",
     },
   });
   console.log(checkout.data?.data.attributes);
@@ -197,7 +196,7 @@ export async function processWebhookEvent(webhookEvent: WebhookEvent) {
   const eventName = EventsSchema.parse(webhookEvent.eventName);
 
   if (parsedEventBody.success === false) {
-    return await WebhookEventModel.update({
+    return await WebhookEventsModel.update({
       ...webhookEvent,
       processed: true,
       processingError: "Invalid event body.",
@@ -268,7 +267,7 @@ export async function processWebhookEvent(webhookEvent: WebhookEvent) {
     default:
       break;
   }
-  return await WebhookEventModel.update({
+  return await WebhookEventsModel.update({
     ...webhookEvent,
     processed: true,
     processingError,

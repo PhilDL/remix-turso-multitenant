@@ -73,7 +73,7 @@ export default function LoginForm() {
   return (
     <div className="flex min-w-96 flex-col gap-8">
       <h1 className="max-w-md scroll-m-20 text-center text-4xl font-extrabold tracking-tight">
-        Tantilument
+        Multenant
       </h1>
       <Form
         method="post"

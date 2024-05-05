@@ -2,11 +2,11 @@ import { createId } from "@paralleldrive/cuid2";
 import { eq } from "drizzle-orm";
 import { plans, type NewPlan, type SelectPlans } from "drizzle/schema";
 
-import { buildDbClient } from "~/utils/db.server";
+import { serviceDb } from "~/utils/db.server";
 
 export const PlansModel = {
   getById: async (id: string): Promise<SelectPlans | undefined> => {
-    return await buildDbClient()
+    return await serviceDb()
       .select()
       .from(plans)
       .where(eq(plans.id, id))
@@ -17,7 +17,7 @@ export const PlansModel = {
   getByVariantId: async (
     variantId: string,
   ): Promise<SelectPlans | undefined> => {
-    return await buildDbClient()
+    return await serviceDb()
       .select()
       .from(plans)
       .where(eq(plans.variantId, variantId))
@@ -26,7 +26,7 @@ export const PlansModel = {
   },
 
   upsert: async (plan: Omit<NewPlan, "id">): Promise<SelectPlans> => {
-    return await buildDbClient()
+    return await serviceDb()
       .insert(plans)
       .values({
         ...plan,
@@ -35,5 +35,9 @@ export const PlansModel = {
       .onConflictDoUpdate({ target: plans.variantId, set: plan })
       .returning()
       .get();
+  },
+
+  getAll(): Promise<SelectPlans[]> {
+    return serviceDb().query.plans.findMany();
   },
 };

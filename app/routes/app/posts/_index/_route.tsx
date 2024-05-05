@@ -2,11 +2,11 @@ import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData } from "@remix-run/react";
 
 import { requireUserDbURL } from "~/utils/auth.server";
-import { buildDbClient } from "~/utils/db.tenant.server";
+import { tenantDb } from "~/utils/db.tenant.server";
 import { buttonVariants } from "~/components/ui/button";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const db = buildDbClient({ url: await requireUserDbURL(request) });
+  const db = tenantDb({ url: await requireUserDbURL(request) });
   const posts = await db.query.posts.findMany({});
   return json({ posts });
 };

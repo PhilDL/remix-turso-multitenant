@@ -1,17 +1,36 @@
+import { useState } from "react";
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { createId } from "@paralleldrive/cuid2";
-import { redirect, type ActionFunctionArgs } from "@remix-run/node";
+import {
+  LoaderFunctionArgs,
+  redirect,
+  type ActionFunctionArgs,
+} from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 
+import { requireUserId } from "~/utils/auth.server";
+import { OrganizationsModel } from "~/models/organizations.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { RegisterSchema } from "./register.schema";
-import { register, ServerRegisterSchema } from "./register.server";
+import { CreateOrganizationSchema, toSlug } from "./create-organization.schema";
+import { register, ServerRegisterSchema } from "./create-organization.server";
 
-// Optional: Server action handler
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await requireUserId(request);
+  const userOrganizations = await OrganizationsModel.getByUserId(userId);
+  if (userOrganizations.length > 0) {
+    return redirect("/");
+  }
+}
+
 export async function action({ request }: ActionFunctionArgs) {
+  const userId = await requireUserId(request);
+  const userOrganizations = await OrganizationsModel.getByUserId(userId);
+  if (userOrganizations.length > 0) {
+    throw new Response("User already has an organization", { status: 400 });
+  }
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: ServerRegisterSchema,
@@ -30,14 +49,15 @@ export async function action({ request }: ActionFunctionArgs) {
 // Client form component
 export default function RegisterForm() {
   const lastResult = useActionData<typeof action>();
+  const [slugPreview, setSlugPreview] = useState<string | null>(null);
 
   const [form, fields] = useForm({
     lastResult,
-    constraint: getZodConstraint(RegisterSchema),
+    constraint: getZodConstraint(CreateOrganizationSchema),
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: RegisterSchema });
+      return parseWithZod(formData, { schema: CreateOrganizationSchema });
     },
   });
 
@@ -61,6 +81,24 @@ export default function RegisterForm() {
         </div>
 
         <div>{form.errors}</div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label htmlFor={fields.username.id}>Username</Label>
+          <Input
+            {...getInputProps(fields.username, { type: "text" })}
+            onChange={(e) => {
+              setSlugPreview(toSlug(e.currentTarget.value));
+            }}
+          />
+          <p className="font-mono text-xs text-muted-foreground">
+            {slugPreview}
+          </p>
+          <div
+            id={fields.username.errorId}
+            className="max-w-md text-xs text-destructive "
+          >
+            {fields.username.errors}
+          </div>
+        </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.name.id}>Name</Label>
           <Input {...getInputProps(fields.name, { type: "text" })} />
@@ -95,6 +133,13 @@ export default function RegisterForm() {
             className="text-xs text-destructive"
           >
             {fields.passwordConfirm.errors}
+          </div>
+        </div>
+        <div className="grid w-full max-w-sm items-center gap-1.5">
+          <Label htmlFor={fields.website.id}>Website</Label>
+          <Input {...getInputProps(fields.website, { type: "text" })} />
+          <div id={fields.website.errorId} className="text-xs text-destructive">
+            {fields.website.errors}
           </div>
         </div>
 

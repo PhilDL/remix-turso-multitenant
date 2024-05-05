@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useEventSource } from "remix-utils/sse/react";
 
-import { buildDbClient } from "~/utils/db.server";
+import { serviceDb } from "~/utils/db.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/utils";
 import { type OperationStatus, type OperationSteps } from "../operations-steps";
@@ -22,7 +22,7 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
     "database-creation": "pending",
     "preparing-environment": "pending",
   };
-  const org = await buildDbClient().query.organizations.findFirst({
+  const org = await serviceDb().query.organizations.findFirst({
     where: eq(organizations.id, params.id!),
     columns: {
       id: true,
@@ -56,7 +56,7 @@ export default function OrganizationCreation() {
   return (
     <div className="flex min-w-96 flex-col gap-8">
       <h1 className="max-w-md scroll-m-20 text-center text-4xl font-extrabold tracking-tight">
-        Tantilument
+        Multenant
       </h1>
 
       <div className="flex w-[28rem] flex-col gap-3 rounded-md border border-input bg-card p-8">

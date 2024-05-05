@@ -6,8 +6,9 @@ import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 
 import { authSessionStorage } from "~/utils/session.server";
+import { OrganizationsModel } from "~/models/organizations.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
-import { buildDbClient } from "./db.server";
+import { serviceDb } from "./db.server";
 
 export type User = typeof organizations.$inferSelect;
 
@@ -62,15 +63,7 @@ export async function requireUser(
 ) {
   const userId = await requireUserId(request, { redirectTo });
   const [user, subscription] = await Promise.all([
-    buildDbClient().query.organizations.findFirst({
-      where: eq(organizations.id, userId),
-      columns: {
-        id: true,
-        username: true,
-        dbUrl: true,
-        email: true,
-      },
-    }),
+    OrganizationsModel.getById(userId),
     SubscriptionsModel.getByOrganizationId(userId),
   ]);
   if (!user) {
@@ -111,7 +104,7 @@ export async function getUser(request: Request) {
   const userId = await getUserId(request);
   if (!userId) return null;
 
-  const user = await buildDbClient().query.organizations.findFirst({
+  const user = await serviceDb().query.organizations.findFirst({
     where: eq(organizations.id, userId),
     columns: {
       id: true,
@@ -137,9 +130,9 @@ export async function login({
 }
 
 export async function verifyUserPassword(username: string, password: string) {
-  const db = buildDbClient();
+  const db = serviceDb();
   const userWithPassword = await db.query.organizations.findFirst({
-    where: eq(organizations.username, username),
+    where: eq(organizations.slug, username),
     columns: {
       id: true,
       password: true,

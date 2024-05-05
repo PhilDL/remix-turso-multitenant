@@ -1,34 +1,90 @@
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
   index,
   integer,
+  primaryKey,
   sqliteTable,
   text,
   uniqueIndex,
 } from "drizzle-orm/sqlite-core";
+
+export const users = sqliteTable(
+  "users",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    password: text("password").notNull(),
+    avatar: text("avatar"),
+    createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
+    updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
+  },
+  (users) => ({
+    emailIdx: uniqueIndex("email_idx").on(users.email),
+  }),
+);
+
+export type User = typeof users.$inferSelect;
+export type UserCreate = typeof users.$inferInsert;
 
 export const organizations = sqliteTable(
   "organizations",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
-    website: text("website").notNull(),
-    username: text("username").notNull(),
-    email: text("email").notNull(),
-    password: text("password").notNull(),
+    website: text("website"),
+    slug: text("slug").notNull(),
+    email: text("email"),
     logo: text("logo"),
     dbUrl: text("db_url"),
     createdAt: integer("created_at").default(sql`(cast(unixepoch() as int))`),
     updatedAt: integer("updated_at").default(sql`(cast(unixepoch() as int))`),
   },
   (organizations) => ({
-    emailIdx: uniqueIndex("email_idx").on(organizations.email),
-    usernameIdx: uniqueIndex("username_idx").on(organizations.username),
+    slugIdx: uniqueIndex("slug_idx").on(organizations.slug),
     nameIdx: index("name_idx").on(organizations.name),
   }),
 );
 
 export type SelectOrganizations = typeof organizations.$inferSelect;
+
+export const usersToOrganizations = sqliteTable(
+  "users_to_organizations",
+  {
+    userId: text("userId").references(() => users.id),
+    organizationId: integer("organizationId").references(
+      () => organizations.id,
+    ),
+    role: text("role", { enum: ["owner", "member"] }).notNull(),
+  },
+  (table) => {
+    return {
+      pk: primaryKey({ columns: [table.userId, table.organizationId] }),
+    };
+  },
+);
+
+export const usersRelations = relations(users, ({ many }) => ({
+  organizations: many(usersToOrganizations),
+}));
+
+export const organizationsRelations = relations(organizations, ({ many }) => ({
+  users: many(usersToOrganizations),
+}));
+
+export const usersToOrganizationsRelations = relations(
+  usersToOrganizations,
+  ({ one }) => ({
+    organization: one(organizations, {
+      fields: [usersToOrganizations.organizationId],
+      references: [organizations.id],
+    }),
+    user: one(users, {
+      fields: [usersToOrganizations.userId],
+      references: [users.id],
+    }),
+  }),
+);
 
 export const plans = sqliteTable("plans", {
   id: text("id").primaryKey(),

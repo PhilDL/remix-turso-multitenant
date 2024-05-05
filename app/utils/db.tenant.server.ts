@@ -9,7 +9,7 @@ interface BuildTenantDBParams {
   TURSO_DB_AUTH_TOKEN?: string;
 }
 
-export function buildDbClient({ url }: BuildTenantDBParams) {
+export function tenantDb({ url }: BuildTenantDBParams) {
   if (url === undefined) {
     throw new Error("db url is not defined");
   }

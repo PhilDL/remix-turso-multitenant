@@ -6,13 +6,13 @@ import {
   type SubscriptionCreate,
 } from "drizzle/schema";
 
-import { buildDbClient } from "~/utils/db.server";
+import { serviceDb } from "~/utils/db.server";
 
 export const SubscriptionsModel = {
   upsertOnLSId: async (
     subscription: Omit<SubscriptionCreate, "id">,
   ): Promise<Subscription> => {
-    return await buildDbClient()
+    return await serviceDb()
       .insert(subscriptions)
       .values({ ...subscription, id: createId() })
       .onConflictDoUpdate({
@@ -26,7 +26,7 @@ export const SubscriptionsModel = {
   getByOrganizationId: async (
     organizationId: string,
   ): Promise<Subscription | undefined> => {
-    return await buildDbClient()
+    return await serviceDb()
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.organizationId, organizationId))
