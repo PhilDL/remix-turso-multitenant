@@ -44,4 +44,4 @@ RUN mkdir -p /data
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "pnpm", "run", "start" ]
+ENTRYPOINT [ "./start.sh" ]
