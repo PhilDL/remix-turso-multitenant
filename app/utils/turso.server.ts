@@ -25,7 +25,7 @@ export async function createOrganizationDatabase(
   const orgDatabase = await api
     .post(`v1/databases`, {
       json: {
-        name: `${env.APP_NAME}-${organization.username}`,
+        name: `${env.APP_NAME}-${organization.slug}`,
         group: `${env.TURSO_APP_GROUP}`,
         location: `${env.APP_PRIMARY_LOCATION}`,
         schema: `${env.TURSO_SCHEMA_DB_NAME}`,
@@ -39,7 +39,7 @@ export async function createOrganizationDatabase(
   // create an authentication token
   const orgToken = await api
     .post(
-      `v1/organizations/${env.TURSO_APP_ORGANIZATION}/databases/${env.APP_NAME}-${organization.username}/auth/tokens`,
+      `v1/organizations/${env.TURSO_APP_ORGANIZATION}/databases/${env.APP_NAME}-${organization.slug}/auth/tokens`,
       {},
     )
     .json<{ jwt: string }>();
