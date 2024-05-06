@@ -26,6 +26,9 @@ importers:
       '@paralleldrive/cuid2':
         specifier: ^2.2.2
         version: 2.2.2
+      '@radix-ui/react-avatar':
+        specifier: ^1.0.4
+        version: 1.0.4(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
       '@radix-ui/react-label':
         specifier: ^2.0.2
         version: 2.0.2(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
@@ -1280,6 +1283,19 @@ packages:
 
   '@radix-ui/react-arrow@1.0.3':
     resolution: {integrity: sha512-wSP+pHsB/jQRaL6voubsQ/ZlrGBHHrOjmBnr19hxYgtS0WvAFwZhK2WP/YY5yF9uKECCEEDGxuLxq1NBK51wFA==}
+    peerDependencies:
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0
+      react-dom: ^16.8 || ^17.0 || ^18.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      '@types/react-dom':
+        optional: true
+
+  '@radix-ui/react-avatar@1.0.4':
+    resolution: {integrity: sha512-kVK2K7ZD3wwj3qhle0ElXhOjbezIgyl2hVvgwfIdexL3rN6zJmy5AqqIf+D31lxVppdzV8CjAfZ6PklkmInZLw==}
     peerDependencies:
       '@types/react': '*'
       '@types/react-dom': '*'
@@ -6788,6 +6804,19 @@ snapshots:
     dependencies:
       '@babel/runtime': 7.24.4
       '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
+      react: 18.3.0-canary-2f8f77602-20240229
+      react-dom: 18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229)
+    optionalDependencies:
+      '@types/react': 18.2.75
+      '@types/react-dom': 18.2.24
+
+  '@radix-ui/react-avatar@1.0.4(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)':
+    dependencies:
+      '@babel/runtime': 7.24.4
+      '@radix-ui/react-context': 1.0.1(@types/react@18.2.75)(react@18.3.0-canary-2f8f77602-20240229)
+      '@radix-ui/react-primitive': 1.0.3(@types/react-dom@18.2.24)(@types/react@18.2.75)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
+      '@radix-ui/react-use-callback-ref': 1.0.1(@types/react@18.2.75)(react@18.3.0-canary-2f8f77602-20240229)
+      '@radix-ui/react-use-layout-effect': 1.0.1(@types/react@18.2.75)(react@18.3.0-canary-2f8f77602-20240229)
       react: 18.3.0-canary-2f8f77602-20240229
       react-dom: 18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229)
     optionalDependencies:

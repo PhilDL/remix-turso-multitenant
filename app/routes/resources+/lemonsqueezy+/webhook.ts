@@ -3,7 +3,7 @@ import { type ActionFunctionArgs } from "@remix-run/node";
 
 import { processWebhookEvent } from "~/utils/lemonsequeezy.server";
 import { MetadataSchema } from "~/utils/lemonsqueezy.schema";
-import { WebhookEventModel } from "~/models/webhook-event.server";
+import { WebhookEventsModel } from "~/models/webhook-events.server";
 import { env } from "~/env.server";
 
 export const action = async ({ request, params }: ActionFunctionArgs) => {
@@ -27,7 +27,7 @@ export const action = async ({ request, params }: ActionFunctionArgs) => {
 
   // Type guard to check if the object has a 'meta' property.
   if (requestData.success) {
-    const webhookEvent = await WebhookEventModel.create({
+    const webhookEvent = await WebhookEventsModel.create({
       eventName: requestData.data.meta.event_name,
       body: requestData.data,
     });

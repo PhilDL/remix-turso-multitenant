@@ -1,9 +1,9 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { createId } from "@paralleldrive/cuid2";
-import { redirect, type ActionFunctionArgs } from "@remix-run/node";
+import { type ActionFunctionArgs } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 
+import { authenticator } from "~/utils/auth.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -12,6 +12,7 @@ import { register, ServerRegisterSchema } from "./register.server";
 
 // Optional: Server action handler
 export async function action({ request }: ActionFunctionArgs) {
+  const clonedRequest = request.clone();
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: ServerRegisterSchema,
@@ -22,9 +23,13 @@ export async function action({ request }: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return submission.reply();
   }
-  const creationId = createId();
-  void register(submission.value, creationId);
-  throw redirect(`/organization-creation/${creationId}`);
+
+  await register(submission.value);
+
+  return await authenticator.authenticate("user-pass", clonedRequest, {
+    successRedirect: "/app/dashboard",
+    failureRedirect: "/login",
+  });
 }
 
 // Client form component
@@ -56,7 +61,7 @@ export default function RegisterForm() {
             Register
           </h3>
           <p className="text-xs text-muted-foreground">
-            Create your own space on the web with Multenant.
+            Let's create the credentials you will use to connect to your space.
           </p>
         </div>
 

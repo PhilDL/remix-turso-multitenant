@@ -1,12 +1,14 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 
-import { requireUserDbURL } from "~/utils/auth.server";
+import { requireUserOrg } from "~/utils/auth.server";
 import { tenantDb } from "~/utils/db.tenant.server";
+import { AppLink } from "~/components/app-link";
 import { buttonVariants } from "~/components/ui/button";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const db = tenantDb({ url: await requireUserDbURL(request) });
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { org } = await requireUserOrg(request, params);
+  const db = tenantDb({ url: org.dbUrl! });
   const posts = await db.query.posts.findMany({});
   return json({ posts });
 };
@@ -29,15 +31,15 @@ export default function Dashboard() {
         <ul className="mt-8 flex flex-col gap-4 divide-y divide-input">
           {posts.map((post) => (
             <li key={post.id} className="flex flex-col gap-1">
-              <Link
-                to={`/app/posts/${post.slug}`}
+              <AppLink
+                to={`/posts/${post.slug}`}
                 className="flex flex-row items-center gap-2 text-xl font-semibold hover:text-primary"
               >
                 <span>{post.title}</span> <span>–</span>
                 <span className="text-xs text-muted-foreground">
                   {new Date((post.createdAt ?? 0) * 1000).toLocaleDateString()}
                 </span>
-              </Link>
+              </AppLink>
               {post.content ? (
                 <div className="text-md text-muted-foreground">
                   {post.content?.length > 100
@@ -52,12 +54,12 @@ export default function Dashboard() {
         </ul>
       )}
       <div className="mt-8">
-        <Link
+        <AppLink
           className={buttonVariants({ variant: "outline" })}
-          to={"/app/posts/new"}
+          to={"/posts/new"}
         >
           Write a post
-        </Link>
+        </AppLink>
       </div>
     </div>
   );

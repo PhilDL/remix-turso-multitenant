@@ -52,9 +52,7 @@ export const usersToOrganizations = sqliteTable(
   "users_to_organizations",
   {
     userId: text("userId").references(() => users.id),
-    organizationId: integer("organizationId").references(
-      () => organizations.id,
-    ),
+    organizationId: text("organizationId").references(() => organizations.id),
     role: text("role", { enum: ["owner", "member"] }).notNull(),
   },
   (table) => {

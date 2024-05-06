@@ -4,7 +4,7 @@ import { Await, useLoaderData } from "@remix-run/react";
 import { type NewPlan } from "drizzle/schema";
 import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
-import { requireUser } from "~/utils/auth.server";
+import { requireUserOrg } from "~/utils/auth.server";
 import { syncSubscriptionPlans } from "~/utils/lemonsequeezy.server";
 import { SignupButton } from "~/components/subscription-button";
 import {
@@ -27,21 +27,21 @@ export let handle: ExternalScriptsHandle = {
   ],
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const user = await requireUser(request);
-  console.log(user);
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { user, org } = await requireUserOrg(request, params);
   return defer({
     plans: syncSubscriptionPlans(),
     user,
+    org,
   });
 };
 
 export default function Dashboard() {
-  const { plans, user } = useLoaderData<typeof loader>();
+  const { plans, org } = useLoaderData<typeof loader>();
   return (
     <div>
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-        Dashboard for {user.username}
+        Dashboard for {org.name}
       </h2>
       <Suspense
         fallback={
@@ -65,7 +65,7 @@ export default function Dashboard() {
               <h3 className="text-2xl font-semibold">Plans</h3>
               <div className="mb-5 mt-3 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
                 {plans.map((plan) => (
-                  <Plan plan={plan} key={plan.id} userPlanId={user.planId} />
+                  <Plan plan={plan} key={plan.id} orgPlanId={org.planId} />
                 ))}
               </div>
             </div>
@@ -90,10 +90,10 @@ export function formatPrice(priceInCents: string) {
 
 export const Plan = ({
   plan,
-  userPlanId,
+  orgPlanId,
 }: {
   plan: NewPlan;
-  userPlanId?: string;
+  orgPlanId?: string | null;
 }) => {
   const { description, productName, name, price } = plan;
 
@@ -124,7 +124,7 @@ export const Plan = ({
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        {userPlanId === plan.id ? (
+        {orgPlanId === plan.id ? (
           <span className="text-accent-foreground">Current Plan</span>
         ) : (
           <SignupButton plan={plan} />

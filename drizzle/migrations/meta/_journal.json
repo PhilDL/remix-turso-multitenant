@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1713103919065,
-      "tag": "0000_lively_kat_farrell",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1713457742316,
-      "tag": "0001_dizzy_microbe",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1714837222382,
-      "tag": "0002_freezing_vector",
+      "when": 1714929967440,
+      "tag": "0000_eminent_santa_claus",
       "breakpoints": true
     }
   ]

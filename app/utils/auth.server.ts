@@ -1,16 +1,14 @@
 import { redirect } from "@remix-run/node";
+import type { Params } from "@remix-run/react";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { organizations } from "drizzle/schema";
+import { users, type User } from "drizzle/schema";
 import { Authenticator } from "remix-auth";
 import { FormStrategy } from "remix-auth-form";
 
 import { authSessionStorage } from "~/utils/session.server";
-import { OrganizationsModel } from "~/models/organizations.server";
-import { SubscriptionsModel } from "~/models/subscriptions.server";
+import { UsersModel } from "~/models/users.server";
 import { serviceDb } from "./db.server";
-
-export type User = typeof organizations.$inferSelect;
 
 export const authenticator = new Authenticator<{ id: string }>(
   authSessionStorage,
@@ -25,9 +23,9 @@ export async function requireAnonymous(request: Request) {
 
 authenticator.use(
   new FormStrategy(async ({ form }) => {
-    let username = form.get("username") as string;
+    let email = form.get("email") as string;
     let password = form.get("password") as string;
-    let user = await login({ username, password });
+    let user = await login({ email, password });
     if (!user) throw new Error("Invalid email or password");
     return user;
   }),
@@ -62,29 +60,32 @@ export async function requireUser(
   { redirectTo }: { redirectTo?: string | null } = {},
 ) {
   const userId = await requireUserId(request, { redirectTo });
-  const [user, subscription] = await Promise.all([
-    OrganizationsModel.getById(userId),
-    SubscriptionsModel.getByOrganizationId(userId),
-  ]);
+  const user = await UsersModel.getById(userId);
   if (!user) {
     throw new Error("User not found");
   }
   return {
-    ...user,
-    subscriptionId: subscription?.id,
-    planId: subscription?.planId,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    avatar: user.avatar,
   };
 }
 
-export async function requireUserDbURL(
+export async function requireUserOrg(
   request: Request,
+  orgSlug: string | Params<string>,
   { redirectTo }: { redirectTo?: string | null } = {},
 ) {
+  let slug = typeof orgSlug === "string" ? orgSlug : orgSlug.org;
+  if (!slug) throw new Error("Organization slug is required");
+  console.log("slug", slug);
   const user = await requireUser(request, { redirectTo });
-  if (!user.dbUrl) {
-    throw new Error("This user doesn't have a database");
+  const org = await UsersModel.getUserOrg(user.id, slug);
+  if (!org) {
+    throw new Error("Organization not found");
   }
-  return user.dbUrl;
+  return { user, org };
 }
 
 export async function getPasswordHash(password: string) {
@@ -104,12 +105,20 @@ export async function getUser(request: Request) {
   const userId = await getUserId(request);
   if (!userId) return null;
 
-  const user = await serviceDb().query.organizations.findFirst({
-    where: eq(organizations.id, userId),
+  const user = await serviceDb().query.users.findFirst({
+    where: eq(users.id, userId),
     columns: {
       id: true,
-      username: true,
-      dbUrl: true,
+      name: true,
+      email: true,
+    },
+    with: {
+      organizations: {
+        columns: {
+          organizationId: true,
+          role: true,
+        },
+      },
     },
   });
   if (user) return user;
@@ -118,21 +127,21 @@ export async function getUser(request: Request) {
 }
 
 export async function login({
-  username,
+  email,
   password,
 }: {
-  username: User["username"];
+  email: User["email"];
   password: string;
 }) {
-  const user = await verifyUserPassword(username, password);
+  const user = await verifyUserPassword(email, password);
   if (!user) return null;
   return user;
 }
 
-export async function verifyUserPassword(username: string, password: string) {
+export async function verifyUserPassword(email: string, password: string) {
   const db = serviceDb();
-  const userWithPassword = await db.query.organizations.findFirst({
-    where: eq(organizations.slug, username),
+  const userWithPassword = await db.query.users.findFirst({
+    where: eq(users.email, email),
     columns: {
       id: true,
       password: true,

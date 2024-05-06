@@ -3,9 +3,10 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { createId } from "@paralleldrive/cuid2";
 import {
-  LoaderFunctionArgs,
+  json,
   redirect,
   type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 
@@ -14,15 +15,20 @@ import { OrganizationsModel } from "~/models/organizations.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { CreateOrganizationSchema, toSlug } from "./create-organization.schema";
-import { register, ServerRegisterSchema } from "./create-organization.server";
+import { toSlug } from "~/utils";
+import { CreateOrganizationSchema } from "./create-organization.schema";
+import {
+  register,
+  ServerCreateOrganizationSchema,
+} from "./create-organization.server";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const userOrganizations = await OrganizationsModel.getByUserId(userId);
   if (userOrganizations.length > 0) {
-    return redirect("/");
+    throw redirect(`/app/${userOrganizations[0]!.slug}`);
   }
+  return json({ userId });
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -33,7 +39,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
-    schema: ServerRegisterSchema,
+    schema: ServerCreateOrganizationSchema,
     async: true,
   });
 
@@ -42,7 +48,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return submission.reply();
   }
   const creationId = createId();
-  void register(submission.value, creationId);
+  void register(submission.value, { creationId, userId });
   throw redirect(`/organization-creation/${creationId}`);
 }
 
@@ -73,32 +79,14 @@ export default function RegisterForm() {
       >
         <div className="flex flex-col gap-2">
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight">
-            Register
+            Create your organization
           </h3>
           <p className="text-xs text-muted-foreground">
-            Create your own space on the web with Multenant.
+            This will be your own space on the web with Multenant.
           </p>
         </div>
 
         <div>{form.errors}</div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor={fields.username.id}>Username</Label>
-          <Input
-            {...getInputProps(fields.username, { type: "text" })}
-            onChange={(e) => {
-              setSlugPreview(toSlug(e.currentTarget.value));
-            }}
-          />
-          <p className="font-mono text-xs text-muted-foreground">
-            {slugPreview}
-          </p>
-          <div
-            id={fields.username.errorId}
-            className="max-w-md text-xs text-destructive "
-          >
-            {fields.username.errors}
-          </div>
-        </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
           <Label htmlFor={fields.name.id}>Name</Label>
           <Input {...getInputProps(fields.name, { type: "text" })} />
@@ -107,32 +95,21 @@ export default function RegisterForm() {
           </div>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor={fields.email.id}>Email</Label>
-          <Input {...getInputProps(fields.email, { type: "email" })} />
-          <div id={fields.email.errorId} className="text-xs text-destructive">
-            {fields.email.errors}
-          </div>
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor={fields.password.id}>Password</Label>
-          <Input {...getInputProps(fields.password, { type: "password" })} />
-          <div
-            id={fields.password.errorId}
-            className="text-xs text-destructive"
-          >
-            {fields.password.errors}
-          </div>
-        </div>
-        <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor={fields.passwordConfirm.id}>Password confirm</Label>
+          <Label htmlFor={fields.slug.id}>Slug</Label>
           <Input
-            {...getInputProps(fields.passwordConfirm, { type: "password" })}
+            {...getInputProps(fields.slug, { type: "text" })}
+            onChange={(e) => {
+              setSlugPreview(toSlug(e.currentTarget.value));
+            }}
           />
+          <p className="font-mono text-xs text-muted-foreground">
+            {slugPreview}
+          </p>
           <div
-            id={fields.passwordConfirm.errorId}
-            className="text-xs text-destructive"
+            id={fields.slug.errorId}
+            className="max-w-md text-xs text-destructive "
           >
-            {fields.passwordConfirm.errors}
+            {fields.slug.errors}
           </div>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">

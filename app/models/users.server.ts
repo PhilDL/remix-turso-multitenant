@@ -1,7 +1,8 @@
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { and, eq, is } from "drizzle-orm";
 import {
   organizations,
+  subscriptions,
   User,
   UserCreate,
   users,
@@ -43,6 +44,40 @@ export const UsersModel = {
         id: createId(),
       })
       .returning()
+      .get();
+  },
+  isMemberOfOrg: async (userId: string, organizationId: string) => {
+    await serviceDb().query.usersToOrganizations.findFirst({
+      where: and(
+        eq(usersToOrganizations.userId, userId),
+        eq(usersToOrganizations.organizationId, organizationId),
+      ),
+    });
+  },
+  getUserOrg: async (userId: string, organizationSlug: string) => {
+    return await serviceDb()
+      .select({
+        id: organizations.id,
+        name: organizations.name,
+        slug: organizations.slug,
+        dbUrl: organizations.dbUrl,
+        planId: subscriptions.planId,
+        planStatus: subscriptions.status,
+        planIsPaused: subscriptions.isPaused,
+      })
+      .from(organizations)
+      .where(eq(organizations.slug, organizationSlug))
+      .innerJoin(
+        usersToOrganizations,
+        and(
+          eq(organizations.id, usersToOrganizations.organizationId),
+          eq(usersToOrganizations.userId, userId),
+        ),
+      )
+      .leftJoin(
+        subscriptions,
+        eq(subscriptions.organizationId, organizations.id),
+      )
       .get();
   },
 };

@@ -9,17 +9,18 @@ import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
-import { requireUserDbURL } from "~/utils/auth.server";
+import { appLink } from "~/utils/app-link";
+import { requireUserOrg } from "~/utils/auth.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { toSlug } from "~/routes/_auth/register/register.schema";
+import { toSlug } from "~/utils";
 import { NewPostSchema } from "./new-post.schema";
 import { newPost } from "./new-post.server";
 
-export const action = async ({ request }: ActionFunctionArgs) => {
-  const dbUrl = await requireUserDbURL(request);
+export const action = async ({ request, params }: ActionFunctionArgs) => {
+  const { org } = await requireUserOrg(request, params);
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: NewPostSchema,
@@ -31,13 +32,13 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     return submission.reply();
   }
 
-  const post = await newPost(submission.value, dbUrl);
+  const post = await newPost(submission.value, org.dbUrl!);
   if (!post) {
     return submission.reply({
       formErrors: ["Failed to create post"],
     });
   }
-  throw redirect("/app/posts");
+  throw redirect(appLink("/posts", org));
 };
 
 export default function NewPost() {

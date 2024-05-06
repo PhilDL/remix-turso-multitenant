@@ -36,10 +36,11 @@ export const emitOperationsState = (
 
 // this input is branded "ServerRegisterData" to be sure that we went through
 // all the validation steps
-export const register = async (
-  { email, name, password }: ServerRegisterData,
-  creationId: string,
-) => {
+export const register = async ({
+  email,
+  name,
+  password,
+}: ServerRegisterData) => {
   const encryptedPassword = await getPasswordHash(password);
   const user = await UsersModel.create({
     email,

@@ -21,7 +21,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
 export const LoginFormSchema = z.object({
-  username: z.string(),
+  email: z.string(),
   password: z.string(),
 });
 
@@ -49,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return await authenticator.authenticate("user-pass", clonedRequest, {
-    successRedirect: "/app/dashboard",
+    successRedirect: "/app",
     failureRedirect: "/login",
   });
 }
@@ -91,13 +91,13 @@ export default function LoginForm() {
 
         <div className="text-sm text-destructive">{form.errors}</div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor={fields.username.id}>Username</Label>
-          <Input {...getInputProps(fields.username, { type: "text" })} />
+          <Label htmlFor={fields.email.id}>Email</Label>
+          <Input {...getInputProps(fields.email, { type: "email" })} />
           <div
-            id={fields.username.errorId}
+            id={fields.email.errorId}
             className="max-w-md text-xs text-destructive "
           >
-            {fields.username.errors}
+            {fields.email.errors}
           </div>
         </div>
         <div className="grid w-full max-w-sm items-center gap-1.5">

@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Link, useLoaderData, useResolvedPath } from "@remix-run/react";
-import { eq } from "drizzle-orm";
-import { organizations } from "drizzle/schema";
 import {
   CircleCheckIcon,
   CircleDashedIcon,
@@ -10,40 +8,38 @@ import {
   LoaderIcon,
 } from "lucide-react";
 import { useEventSource } from "remix-utils/sse/react";
+import { z } from "zod";
 
-import { serviceDb } from "~/utils/db.server";
+import { OrganizationsModel } from "~/models/organizations.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/utils";
 import { type OperationStatus, type OperationSteps } from "../operations-steps";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  let initialStatus: Record<OperationSteps, OperationStatus> = {
+  let initialState: Record<OperationSteps, OperationStatus> = {
     "organization-creation": "in-progress",
     "database-creation": "pending",
     "preparing-environment": "pending",
   };
-  const org = await serviceDb().query.organizations.findFirst({
-    where: eq(organizations.id, params.id!),
-    columns: {
-      id: true,
-      username: true,
-      dbUrl: true,
-    },
-  });
+  const parsedId = z.string().safeParse(params.id);
+  if (parsedId.success === false) {
+    throw new Error("Invalid organization id");
+  }
+  const org = await OrganizationsModel.getById(parsedId.data);
   if (org) {
-    initialStatus = {
+    initialState = {
       "organization-creation": "success",
       "database-creation": org.dbUrl ? "success" : "in-progress",
       "preparing-environment": org.dbUrl ? "success" : "pending",
     };
   }
-  return json(initialStatus);
+  return json({ initialState, org });
 };
 
 export default function OrganizationCreation() {
   const path = useResolvedPath("./stream");
   const data = useEventSource(path.pathname);
-  const initialState = useLoaderData<typeof loader>();
+  const { initialState, org } = useLoaderData<typeof loader>();
   const [operationEvents, setOperationEvents] =
     useState<Record<OperationSteps, OperationStatus>>(initialState);
 
@@ -83,18 +79,20 @@ export default function OrganizationCreation() {
           />
         </ul>
       </div>
-      {Object.values(operationEvents).every(
-        (status) => status === "success",
-      ) && (
-        <div className="flex flex-col">
-          <p className="mb-4 text-accent-foreground">
-            Your organization has been created successfully!
-          </p>
-          <Link to="/login" className={buttonVariants({ variant: "default" })}>
-            Login
-          </Link>
-        </div>
-      )}
+      {Object.values(operationEvents).every((status) => status === "success") &&
+        org?.slug && (
+          <div className="flex flex-col">
+            <p className="mb-4 text-accent-foreground">
+              Your organization has been created successfully!
+            </p>
+            <Link
+              to={`/app/${org.slug}`}
+              className={buttonVariants({ variant: "default" })}
+            >
+              Go to your organization
+            </Link>
+          </div>
+        )}
     </div>
   );
 }

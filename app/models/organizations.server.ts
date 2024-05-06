@@ -25,6 +25,16 @@ export const OrganizationsModel = {
     });
   },
 
+  slugExists: async (slug: string) => {
+    return (
+      (
+        await serviceDb().query.organizations.findFirst({
+          where: (organizations, { eq }) => eq(organizations.slug, slug),
+        })
+      )?.id !== undefined
+    );
+  },
+
   getByUserId: async (userId: string): Promise<SelectOrganizations[]> => {
     return await serviceDb()
       .select({
