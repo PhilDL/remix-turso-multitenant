@@ -1,5 +1,6 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
+import { BookIcon, CreditCardIcon, LayoutDashboardIcon } from "lucide-react";
 
 import { requireUserOrg } from "~/utils/auth.server";
 import { initials } from "~/utils/display";
@@ -16,8 +17,8 @@ export default function AppLayout() {
   const { org, user } = useLoaderData<typeof loader>();
 
   return (
-    <div className="flex h-full min-h-screen w-full flex-row">
-      <aside className="flex h-full min-h-screen w-56 flex-col justify-start gap-8 border-r border-r-input p-4">
+    <div className="flex h-full min-h-screen w-full flex-row bg-stone-900">
+      <aside className="flex h-full min-h-screen w-56 flex-col justify-start gap-8 p-4">
         <h1 className="text-2xl font-bold">Multenant</h1>
 
         <nav className="flex flex-1 flex-col justify-start">
@@ -26,27 +27,44 @@ export default function AppLayout() {
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    "hover:text-underline text-muted-foreground",
+                    "hover:text-underline flex items-center text-muted-foreground",
                     isActive && "text-primary",
                   )
                 }
                 to={`/app/${org.slug}/dashboard`}
+                prefetch="intent"
               >
-                Dashboard
+                <LayoutDashboardIcon className="mr-2 h-4 w-4" /> Dashboard
               </NavLink>
             </li>
             <li>
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    "text-muted-foreground",
+                    "hover:text-underline flex items-center text-muted-foreground",
                     "hover:text-underline hover:text-white",
                     isActive && "text-primary",
                   )
                 }
                 to={`/app/${org.slug}/posts`}
+                prefetch="render"
               >
-                Posts
+                <BookIcon className="mr-2 h-4 w-4" /> Posts
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={({ isActive }) =>
+                  cn(
+                    "hover:text-underline flex items-center text-muted-foreground",
+                    "hover:text-underline hover:text-white",
+                    isActive && "text-primary",
+                  )
+                }
+                to={`/app/${org.slug}/billing`}
+                prefetch="render"
+              >
+                <CreditCardIcon className="mr-2 h-4 w-4" /> Billing
               </NavLink>
             </li>
           </ul>
@@ -54,7 +72,7 @@ export default function AppLayout() {
         <div>{org.name}</div>
       </aside>
       <div className="flex h-full w-full flex-col">
-        <nav className="flex h-32 flex-1 flex-row justify-end border-b border-b-input px-4 py-2">
+        <nav className="flex h-32 flex-1 flex-row justify-end px-4 py-2">
           <div className="flex flex-row items-center gap-4 px-4">
             <Avatar className="h-8 w-8">
               <AvatarImage
@@ -73,7 +91,7 @@ export default function AppLayout() {
             </Button>
           </Form>
         </nav>
-        <main className="p-4">
+        <main className="h-full min-h-screen rounded-md border bg-stone-950 p-4 lg:p-8">
           <Outlet context={{ orgSlug: org.slug }} />
         </main>
       </div>

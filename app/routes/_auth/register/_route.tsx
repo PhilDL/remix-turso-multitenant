@@ -1,14 +1,23 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { type ActionFunctionArgs } from "@remix-run/node";
+import {
+  json,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 
-import { authenticator } from "~/utils/auth.server";
+import { authenticator, requireAnonymous } from "~/utils/auth.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { RegisterSchema } from "./register.schema";
 import { register, ServerRegisterSchema } from "./register.server";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  await requireAnonymous(request);
+  return json({});
+}
 
 // Optional: Server action handler
 export async function action({ request }: ActionFunctionArgs) {

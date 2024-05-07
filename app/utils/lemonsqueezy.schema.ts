@@ -32,7 +32,7 @@ export const MetadataSchema = z.object({
   meta: z.object({
     event_name: z.string(),
     custom_data: z.object({
-      user_id: z.string(),
+      org_id: z.string(),
     }),
   }),
 });

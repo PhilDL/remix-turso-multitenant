@@ -28,7 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body
         suppressHydrationWarning
-        className="dark h-full min-h-screen w-full"
+        className="dark h-full min-h-screen w-full bg-background"
       >
         {children}
         <ScrollRestoration />

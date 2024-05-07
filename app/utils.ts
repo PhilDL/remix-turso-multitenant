@@ -12,3 +12,15 @@ export const toSlug = (value: string) =>
     lower: true,
     trim: true,
   });
+
+export function formatPrice(priceInCents: string) {
+  const price = parseFloat(priceInCents);
+  const dollars = price / 100;
+
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "EUR",
+    // Use minimumFractionDigits to handle cases like $59.00 -> $59
+    minimumFractionDigits: dollars % 1 !== 0 ? 2 : 0,
+  }).format(dollars);
+}

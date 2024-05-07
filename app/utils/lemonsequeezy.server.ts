@@ -108,9 +108,9 @@ export const createCheckoutURL = async (
   planId: string,
   {
     embed = true,
-    userId,
+    orgId,
     email,
-  }: { userId?: string; embed?: boolean; email?: string },
+  }: { orgId?: string; embed?: boolean; email?: string },
 ) => {
   configureLemonSqueezy();
 
@@ -123,7 +123,7 @@ export const createCheckoutURL = async (
     checkoutData: {
       email: email ?? undefined,
       custom: {
-        user_id: userId,
+        org_id: orgId,
       },
     },
     productOptions: {
@@ -241,7 +241,6 @@ export async function processWebhookEvent(webhookEvent: WebhookEvent) {
 
       // Create/update subscription in the database.
       try {
-        console.log("upsert SUBSCRIPTION");
         await SubscriptionsModel.upsertOnLSId({
           lemonSqueezyId,
           orderId: attributes.order_id as number,
@@ -256,7 +255,7 @@ export async function processWebhookEvent(webhookEvent: WebhookEvent) {
           isPaused: false,
           subscriptionItemId: String(attributes.first_subscription_item.id),
           isUsageBased: attributes.first_subscription_item.is_usage_based,
-          organizationId: eventBody.meta.custom_data.user_id,
+          organizationId: eventBody.meta.custom_data.org_id,
           planId: plan.id,
         });
       } catch (error) {

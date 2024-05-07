@@ -37,7 +37,7 @@ export const PlansModel = {
       .get();
   },
 
-  getAll(): Promise<SelectPlans[]> {
-    return serviceDb().query.plans.findMany();
+  getAll: async (): Promise<SelectPlans[]> => {
+    return await serviceDb().select().from(plans).orderBy(plans.sort).all();
   },
 };

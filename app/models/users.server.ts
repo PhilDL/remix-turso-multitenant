@@ -1,13 +1,12 @@
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq, is } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   organizations,
   subscriptions,
-  User,
-  UserCreate,
   users,
   usersToOrganizations,
-  type SelectOrganizations,
+  type User,
+  type UserCreate,
 } from "drizzle/schema";
 
 import { serviceDb } from "~/utils/db.server";
@@ -61,9 +60,10 @@ export const UsersModel = {
         name: organizations.name,
         slug: organizations.slug,
         dbUrl: organizations.dbUrl,
+        subscriptionId: subscriptions.id,
         planId: subscriptions.planId,
         planStatus: subscriptions.status,
-        planIsPaused: subscriptions.isPaused,
+        userRole: usersToOrganizations.role,
       })
       .from(organizations)
       .where(eq(organizations.slug, organizationSlug))

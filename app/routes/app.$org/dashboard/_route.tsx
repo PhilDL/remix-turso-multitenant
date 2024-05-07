@@ -5,8 +5,9 @@ import { type NewPlan } from "drizzle/schema";
 import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
 import { requireUserOrg } from "~/utils/auth.server";
-import { syncSubscriptionPlans } from "~/utils/lemonsequeezy.server";
+import { PlansModel } from "~/models/plans.server";
 import { SignupButton } from "~/components/subscription-button";
+import { buttonVariants } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -16,6 +17,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
+import { cn } from "~/utils";
 
 export let handle: ExternalScriptsHandle = {
   scripts: [
@@ -30,7 +32,7 @@ export let handle: ExternalScriptsHandle = {
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { user, org } = await requireUserOrg(request, params);
   return defer({
-    plans: syncSubscriptionPlans(),
+    plans: PlansModel.getAll(),
     user,
     org,
   });
@@ -65,7 +67,12 @@ export default function Dashboard() {
               <h3 className="text-2xl font-semibold">Plans</h3>
               <div className="mb-5 mt-3 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
                 {plans.map((plan) => (
-                  <Plan plan={plan} key={plan.id} orgPlanId={org.planId} />
+                  <Plan
+                    plan={plan}
+                    key={plan.id}
+                    orgSlug={org.slug}
+                    orgPlanId={org.planId}
+                  />
                 ))}
               </div>
             </div>
@@ -90,9 +97,11 @@ export function formatPrice(priceInCents: string) {
 
 export const Plan = ({
   plan,
+  orgSlug,
   orgPlanId,
 }: {
   plan: NewPlan;
+  orgSlug: string;
   orgPlanId?: string | null;
 }) => {
   const { description, productName, name, price } = plan;
@@ -123,11 +132,16 @@ export const Plan = ({
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex w-full">
         {orgPlanId === plan.id ? (
-          <span className="text-accent-foreground">Current Plan</span>
+          <div
+            className={cn(buttonVariants({ variant: "secondary" }), "w-full")}
+            aria-disabled="true"
+          >
+            Current Plan
+          </div>
         ) : (
-          <SignupButton plan={plan} />
+          <SignupButton plan={plan} orgSlug={orgSlug} />
         )}
       </CardFooter>
     </Card>

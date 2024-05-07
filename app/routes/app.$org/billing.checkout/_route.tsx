@@ -1,11 +1,14 @@
 import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 
-import { requireUser } from "~/utils/auth.server";
-import { createCheckoutURL } from "~/utils/lemonsequeezy.server";
+import { requireUserOrg } from "~/utils/auth.server";
+import { createCheckoutURL } from "~/utils/ls.server";
 
-export async function action({ request }: ActionFunctionArgs) {
-  const user = await requireUser(request);
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { user, org } = await requireUserOrg(request, params);
+  if (org.userRole !== "owner") {
+    throw new Error("You must be an owner to checkout");
+  }
   const formData = await request.formData();
   const planId = z.string().parse(formData.get("planId"));
   const embed = z
@@ -15,7 +18,7 @@ export async function action({ request }: ActionFunctionArgs) {
     .transform((value) => (value === "true" ? true : false))
     .parse(formData.get("embed"));
   const checkoutURL = await createCheckoutURL(planId, {
-    userId: user.id,
+    orgId: org.id,
     email: user.email,
     embed,
   });
