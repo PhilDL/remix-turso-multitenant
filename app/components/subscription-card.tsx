@@ -1,6 +1,7 @@
 import type { Subscription as LemonSqueezySubscription } from "@lemonsqueezy/lemonsqueezy.js";
+import { useNavigation } from "@remix-run/react";
 import type { SelectPlans, Subscription } from "drizzle/schema";
-import { MoreHorizontal } from "lucide-react";
+import { LoaderCircleIcon, MoreHorizontal } from "lucide-react";
 
 import { AppLink } from "~/components/app-link";
 import { SubscriptionDate } from "~/components/subscription-card/date";
@@ -36,6 +37,7 @@ export const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
     subscription.plan.intervalCount && subscription.plan.intervalCount !== 1
       ? `every ${subscription.plan.intervalCount} `
       : "every";
+  const navigation = useNavigation();
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-between gap-4 px-2 py-3 text-sm lg:flex-nowrap">
@@ -82,7 +84,12 @@ export const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
             <AppLink
               to={`/billing/change-plan`}
               className={buttonVariants({ variant: "secondary" })}
+              prefetch="intent"
             >
+              {navigation.state !== "idle" &&
+                navigation.location.pathname.endsWith(
+                  "billing/change-plan",
+                ) && <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />}
               Change plan
             </AppLink>
             <DropdownMenu>
