@@ -101,6 +101,9 @@ importers:
       remix-auth-form:
         specifier: ^1.5.0
         version: 1.5.0(@remix-run/server-runtime@2.9.1(typescript@5.1.6))(remix-auth@3.6.0(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@remix-run/server-runtime@2.9.1(typescript@5.1.6)))
+      remix-create-express-app:
+        specifier: ^0.3.6
+        version: 0.3.6(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6)
       remix-typedjson:
         specifier: ^0.4.1
         version: 0.4.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@remix-run/server-runtime@2.9.1(typescript@5.1.6))(react@18.3.0-canary-2f8f77602-20240229)
@@ -222,6 +225,9 @@ importers:
       remix-development-tools:
         specifier: ^3.7.4
         version: 3.7.4(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
+      remix-express-dev-server:
+        specifier: ^0.2.3
+        version: 0.2.3(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7))
       remix-flat-routes:
         specifier: ^0.6.4
         version: 0.6.4(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))
@@ -240,6 +246,9 @@ importers:
       vite:
         specifier: ^5.2.11
         version: 5.2.11(@types/node@20.12.7)
+      vite-env-only:
+        specifier: ^2.3.0
+        version: 2.3.0(vite@5.2.11(@types/node@20.12.7))
       vite-tsconfig-paths:
         specifier: ^4.3.1
         version: 4.3.2(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7))
@@ -2385,6 +2394,10 @@ packages:
   builtins@5.1.0:
     resolution: {integrity: sha512-SW9lzGTLvWTP1AY8xeAMZimqDrIaSdLQUcVr9DMef51niJ022Ri87SwRRKYm4A6iHfkPaiVUu/Duw2Wc4J7kKg==}
 
+  bytes@3.0.0:
+    resolution: {integrity: sha512-pMhOfFDPiv9t5jjIXkHosWmkSyQbvsgEVNkz0ERHbuLh2T/7j4Mqqpz523Fe8MVY89KC6Sh/QfS2sM+SjgFDcw==}
+    engines: {node: '>= 0.8'}
+
   bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
@@ -2552,6 +2565,14 @@ packages:
   commander@9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
+
+  compressible@2.0.18:
+    resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
+    engines: {node: '>= 0.6'}
+
+  compression@1.7.4:
+    resolution: {integrity: sha512-jaSIDzP9pZVS4ZfQ+TzvtiWhdpFhE2RDHz8QJkpX9SIpLq88VueF5jJw6t+6CUQcAoA6t+x89MLrWAqpfDE8iQ==}
+    engines: {node: '>= 0.8.0'}
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -5083,6 +5104,9 @@ packages:
       '@remix-run/react': ^1.0.0 || ^2.0.0
       '@remix-run/server-runtime': ^1.0.0 || ^2.0.0
 
+  remix-create-express-app@0.3.6:
+    resolution: {integrity: sha512-SRXuhhMch0OokSFGAfdf2xNo0+bFGuREtlB1dB2qZnJVTf5RGKqAvsXc9LHhJtE+sK8ncpcuiI9661O2XW5EXg==}
+
   remix-development-tools@3.7.4:
     resolution: {integrity: sha512-hjqL3WsqvJZRWaK57CjGKjIqwrUxUeCjuqpdVQf1OufdmWTXSM8Gs0ciHlq0Q3Fyer+wfoZoZEUK3HJ2v8KpYg==}
     hasBin: true
@@ -5090,6 +5114,14 @@ packages:
       '@remix-run/react': '>=1.15'
       react: '>=17'
       react-dom: '>=17'
+
+  remix-express-dev-server@0.2.3:
+    resolution: {integrity: sha512-DZKblayjCUqXhdwXf9190Pde3DVb5vbpss3RKbOQ44oVGQpO3QrNmvbTnlbaoZRl/nblcpCPFU/3h+0+CZp9zw==}
+    peerDependencies:
+      '@remix-run/dev': ^2.8.1
+      esbuild: ^0.20.2
+      minimatch: ^9.0.4
+      vite: ^5.2.8
 
   remix-flat-routes@0.6.4:
     resolution: {integrity: sha512-/0bTfaNSd2O3ak+cCLAlmHIsgm7YWiaBiu5ENUyuSWSNwF/KaHuKFhcHHhozPevQ8ROgCZG9tNbWzH6ktJoprA==}
@@ -5794,6 +5826,11 @@ packages:
 
   vfile@5.3.7:
     resolution: {integrity: sha512-r7qlzkgErKjobAmyNIkkSpizsFPYiUPuJb5pNW1RB4JcYVZhs4lIbVqk8XPk033CV/1z8ss5pkax8SuhGpcG8g==}
+
+  vite-env-only@2.3.0:
+    resolution: {integrity: sha512-Q+7+G31twPpGPsY8Oy7vzESLUF79+HnLV5G1g5nxxgQUFvldT/q14n7ZDkkhvWJ46N+8HfPtCWifsPNHG7KHOQ==}
+    peerDependencies:
+      vite: '*'
 
   vite-node@1.4.0:
     resolution: {integrity: sha512-VZDAseqjrHgNd4Kh8icYHWzTKSCZMhia7GyHfhtzLW33fZlG9SwsB6CEhgyVOWkJfJ2pFLrp/Gj1FSfAiqH9Lw==}
@@ -8296,6 +8333,8 @@ snapshots:
     dependencies:
       semver: 7.6.0
 
+  bytes@3.0.0: {}
+
   bytes@3.1.2: {}
 
   cac@6.7.14: {}
@@ -8460,6 +8499,22 @@ snapshots:
   commander@4.1.1: {}
 
   commander@9.5.0: {}
+
+  compressible@2.0.18:
+    dependencies:
+      mime-db: 1.52.0
+
+  compression@1.7.4:
+    dependencies:
+      accepts: 1.3.8
+      bytes: 3.0.0
+      compressible: 2.0.18
+      debug: 2.6.9
+      on-headers: 1.0.2
+      safe-buffer: 5.1.2
+      vary: 1.1.2
+    transitivePeerDependencies:
+      - supports-color
 
   concat-map@0.0.1: {}
 
@@ -11434,6 +11489,21 @@ snapshots:
       '@remix-run/server-runtime': 2.9.1(typescript@5.1.6)
       uuid: 8.3.2
 
+  remix-create-express-app@0.3.6(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6):
+    dependencies:
+      '@remix-run/express': 2.9.1(express@4.19.2)(typescript@5.1.6)
+      '@remix-run/node': 2.9.1(typescript@5.1.6)
+      '@remix-run/react': 2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6)
+      compression: 1.7.4
+      express: 4.19.2
+      morgan: 1.10.0
+      source-map-support: 0.5.21
+    transitivePeerDependencies:
+      - react
+      - react-dom
+      - supports-color
+      - typescript
+
   remix-development-tools@3.7.4(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229):
     dependencies:
       '@radix-ui/react-accordion': 1.1.2(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)
@@ -11460,6 +11530,13 @@ snapshots:
       - '@types/react-dom'
       - bufferutil
       - utf-8-validate
+
+  remix-express-dev-server@0.2.3(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7)):
+    dependencies:
+      '@remix-run/dev': 2.9.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7))
+      esbuild: 0.19.12
+      minimatch: 9.0.4
+      vite: 5.2.11(@types/node@20.12.7)
 
   remix-flat-routes@0.6.4(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.0-canary-2f8f77602-20240229(react@18.3.0-canary-2f8f77602-20240229))(react@18.3.0-canary-2f8f77602-20240229)(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7))):
     dependencies:
@@ -12220,6 +12297,17 @@ snapshots:
       is-buffer: 2.0.5
       unist-util-stringify-position: 3.0.3
       vfile-message: 3.1.4
+
+  vite-env-only@2.3.0(vite@5.2.11(@types/node@20.12.7)):
+    dependencies:
+      '@babel/core': 7.24.4
+      '@babel/generator': 7.24.4
+      '@babel/parser': 7.24.4
+      '@babel/traverse': 7.24.1
+      '@babel/types': 7.24.0
+      vite: 5.2.11(@types/node@20.12.7)
+    transitivePeerDependencies:
+      - supports-color
 
   vite-node@1.4.0(@types/node@20.12.7):
     dependencies:

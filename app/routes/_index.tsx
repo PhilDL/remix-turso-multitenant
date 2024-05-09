@@ -16,8 +16,8 @@ import { buttonVariants } from "~/components/ui/button";
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "Remix+Vite" },
-    { name: "description", content: "Welcome to Remix+Vite!" },
+    { title: "Multenant" },
+    { name: "description", content: "The Remix Turso SaaS starter" },
   ];
 };
 
