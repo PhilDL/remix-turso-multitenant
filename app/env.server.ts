@@ -19,6 +19,7 @@ export const env = createEnv({
     LEMONSQUEEZY_STORE_ID: z.string().min(1),
     LEMONSQUEEZY_WEBHOOK_SECRET: z.string().max(40),
     PUBLIC_APP_URL: z.string().url(),
+    PUBLIC_DOMAIN: z.string().min(1),
   },
   runtimeEnv: process.env,
 });

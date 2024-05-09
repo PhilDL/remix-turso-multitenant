@@ -46,7 +46,3 @@ export default function App() {
 export function ErrorBoundary() {
   return <DefaultErrorBoundary />;
 }
-
-export function HydrateFallback() {
-  return <h1>Loading...</h1>;
-}

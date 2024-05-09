@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Form, useFetcher, useNavigate, useNavigation } from "@remix-run/react";
 import type { NewPlan } from "drizzle/schema";
 
-import type { action } from "~/routes/app.$org/billing.checkout/_route";
+import type { action } from "~/routes/space.$org/billing.checkout/_route";
 import { Button } from "./ui/button";
 
 export function SignupButton({
@@ -38,7 +38,7 @@ export function SignupButton({
 
   if (embed)
     return (
-      <fetcher.Form method="POST" action={`/app/${orgSlug}/billing/checkout`}>
+      <fetcher.Form method="POST" action={`/space/${orgSlug}/billing/checkout`}>
         <input type="hidden" name="planId" value={plan.variantId} />
         <input type="hidden" name="embed" value={String(embed)} />
         <Button disabled={isCurrent || fetcher.state !== "idle"} type="submit">
@@ -47,7 +47,7 @@ export function SignupButton({
       </fetcher.Form>
     );
   return (
-    <Form method="POST" action={`/app/${orgSlug}/billing/checkout`}>
+    <Form method="POST" action={`/space/${orgSlug}/billing/checkout`}>
       <input type="hidden" name="planId" value={plan.variantId} />
       <input type="hidden" name="embed" value={String(embed)} />
       <Button disabled={isCurrent || navigation.state !== "idle"} type="submit">

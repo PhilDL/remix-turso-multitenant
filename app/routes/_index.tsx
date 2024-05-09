@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/node";
-import { Link } from "@remix-run/react";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/node";
+import { Link, useLoaderData } from "@remix-run/react";
 import {
   BoltIcon,
   BriefcaseIcon,
@@ -9,10 +9,20 @@ import {
   LockIcon,
   MountainIcon,
   RocketIcon,
+  UserIcon,
   UsersIcon,
 } from "lucide-react";
+import { serverOnly$ } from "vite-env-only";
 
+import { tenantDb } from "~/utils/db.tenant.server";
 import { buttonVariants } from "~/components/ui/button";
+import {
+  OrgContext,
+  orgSubdomain,
+  type OrgSubdomain,
+} from "~/middleware/org-subdomain";
+
+export const middleware = serverOnly$([orgSubdomain]);
 
 export const meta: MetaFunction = () => {
   return [
@@ -21,7 +31,60 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const org = context.get(OrgContext) as OrgSubdomain | null;
+  if (!org) {
+    return null;
+  }
+  const db = tenantDb({ url: org.dbUrl });
+  const posts = await db.query.posts.findMany({});
+  return { org, posts };
+};
+
 export default function Index() {
+  const tenantData = useLoaderData<typeof loader>();
+  if (tenantData) {
+    return (
+      <div className="container mx-auto flex flex-col-reverse items-start justify-between gap-8 py-12 md:flex-row md:gap-12 md:py-16 lg:gap-16 lg:py-20">
+        <div className="flex flex-col gap-8 overflow-x-auto md:w-2/3 md:gap-12 lg:w-3/4 lg:gap-16">
+          {tenantData.posts.map((post, index) => (
+            <div key={post.id} className="flex w-full flex-row rounded-lg">
+              <img
+                alt={post.title}
+                className="h-48 rounded-md object-cover"
+                height={200}
+                src={`https://picsum.photos/200/300?random=${index + 1}`}
+                width={300}
+              />
+              <div className="flex-1 flex-col justify-start px-6">
+                <h3 className="mb-2 text-xl font-bold">{post.title}</h3>
+                <p className="mb-4 line-clamp-3 text-gray-600">
+                  {post.content}
+                </p>
+                <div className="flex items-center text-sm text-gray-500">
+                  <UserIcon className="mr-2 h-4 w-4" />
+                  <span>John Doe</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mb-8 md:mb-0 md:w-1/3 lg:w-1/4">
+          <div className="overflow-hidden rounded-lg">
+            <div className="p-6">
+              <Link className="text-lg font-bold text-primary" to="#">
+                {tenantData.org.name}
+              </Link>
+              <p className="mt-2 text-muted-foreground">
+                Welcome to the Acme Blog, where we share insights and
+                inspiration on a variety of topics.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex min-h-[100dvh] flex-col">
       <header className="flex h-14 items-center px-4 lg:px-6">

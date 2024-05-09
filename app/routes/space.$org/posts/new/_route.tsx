@@ -10,17 +10,17 @@ import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 
 import { appLink } from "~/utils/app-link";
-import { requireUserOrg } from "~/utils/auth.server";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 import { toSlug } from "~/utils";
 import { NewPostSchema } from "./new-post.schema";
 import { newPost } from "./new-post.server";
 
-export const action = async ({ request, params }: ActionFunctionArgs) => {
-  const { org } = await requireUserOrg(request, params);
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { org } = context.get(UserAndOrgContext);
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: NewPostSchema,

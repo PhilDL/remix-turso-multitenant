@@ -24,6 +24,22 @@ export const OrganizationsModel = {
       },
     });
   },
+  getBySlug: async (slug: string) => {
+    return await serviceDb().query.organizations.findFirst({
+      where: eq(organizations.slug, slug),
+      columns: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+        updatedAt: true,
+        website: true,
+        slug: true,
+        logo: true,
+        dbUrl: true,
+      },
+    });
+  },
 
   slugExists: async (slug: string) => {
     return (

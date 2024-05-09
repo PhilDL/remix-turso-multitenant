@@ -1,44 +1,45 @@
-import { json, type LoaderFunctionArgs } from '@remix-run/node'
-import { Link } from '@remix-run/react'
-import DefaultErrorBoundary from '~/components/ui/error-boundary'
+import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import { Link } from "@remix-run/react";
+
 import {
   badRequest,
   forbidden,
   invalid,
   notFound,
   notLoggedIn,
-} from '~/utils/responses'
+} from "~/utils/responses";
+import DefaultErrorBoundary from "~/components/ui/error-boundary";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const url = new URL(request.url)
-  const type = url.searchParams.get('type')
+  const url = new URL(request.url);
+  const type = url.searchParams.get("type");
   switch (type) {
-    case 'throw':
-      throw new Error('test server error')
-    case 'notfound':
-      throw notFound('Page Not Found')
-    case 'badrequest':
-      throw badRequest('Bad Request', [
-        'missing param',
-        'value must be number',
-        'etc',
-      ])
-    case 'notloggedin':
-      throw notLoggedIn('Not Logged In')
-    case 'forbidden':
-      throw forbidden('Not Authorized')
-    case 'invalid':
-      throw invalid('Invalid')
+    case "throw":
+      throw new Error("test server error");
+    case "notfound":
+      throw notFound("Page Not Found");
+    case "badrequest":
+      throw badRequest("Bad Request", [
+        "missing param",
+        "value must be number",
+        "etc",
+      ]);
+    case "notloggedin":
+      throw notLoggedIn("Not Logged In");
+    case "forbidden":
+      throw forbidden("Not Authorized");
+    case "invalid":
+      throw invalid("Invalid");
   }
 
-  return json({})
-}
+  return json({});
+};
 
 function Layout({ children }: { children?: React.ReactNode }) {
   const handleClick = () => {
-    setTimeout(() => alert('View console for error'), 1)
-    throw new Error('test client error')
-  }
+    setTimeout(() => alert("View console for error"), 1);
+    throw new Error("test client error");
+  };
 
   return (
     <div className="m-4">
@@ -100,11 +101,11 @@ function Layout({ children }: { children?: React.ReactNode }) {
       </div>
       <div className="mt-8">{children}</div>
     </div>
-  )
+  );
 }
 
 export default function Index() {
-  return <Layout></Layout>
+  return <Layout></Layout>;
 }
 
 export function ErrorBoundary() {
@@ -112,5 +113,5 @@ export function ErrorBoundary() {
     <Layout>
       <DefaultErrorBoundary />
     </Layout>
-  )
+  );
 }

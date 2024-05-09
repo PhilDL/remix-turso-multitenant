@@ -1,16 +1,22 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
+import type { LoaderFunctionArgs } from "@remix-run/node";
 import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { BookIcon, CreditCardIcon, LayoutDashboardIcon } from "lucide-react";
+import { serverOnly$ } from "vite-env-only";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { initials } from "~/utils/display";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import {
+  requireUserAndOrgMiddleware,
+  UserAndOrgContext,
+} from "~/middleware/require-user-and-org";
 import { cn } from "~/utils";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const userAndOrg = await requireUserOrg(request, params.org as string);
-  return json(userAndOrg);
+export const middleware = serverOnly$([requireUserAndOrgMiddleware]);
+
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const userAndOrg = context.get(UserAndOrgContext);
+  return userAndOrg;
 };
 
 export default function AppLayout() {
@@ -31,7 +37,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/app/${org.slug}/dashboard`}
+                to={`/space/${org.slug}/dashboard`}
                 prefetch="intent"
               >
                 <LayoutDashboardIcon className="mr-2 h-4 w-4" /> Dashboard
@@ -46,7 +52,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/app/${org.slug}/posts`}
+                to={`/space/${org.slug}/posts`}
                 prefetch="render"
               >
                 <BookIcon className="mr-2 h-4 w-4" /> Posts
@@ -61,7 +67,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/app/${org.slug}/billing`}
+                to={`/space/${org.slug}/billing`}
                 prefetch="render"
               >
                 <CreditCardIcon className="mr-2 h-4 w-4" /> Billing

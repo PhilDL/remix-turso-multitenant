@@ -2,7 +2,6 @@ import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import type { NewPlan } from "drizzle/schema";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { PlansModel } from "~/models/plans.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
 import { SignupButton } from "~/components/subscription-button";
@@ -22,10 +21,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "~/components/ui/dialog";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 import { cn, formatPrice } from "~/utils";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { user, org } = await requireUserOrg(request, params);
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const { user, org } = context.get(UserAndOrgContext);
   const subscription = org.planId
     ? await SubscriptionsModel.getById(org.subscriptionId!)
     : null;

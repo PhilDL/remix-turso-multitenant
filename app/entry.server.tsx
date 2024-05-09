@@ -76,9 +76,9 @@ export const app = createExpressApp({
     // customize your express app with additional middleware
     app.use(morgan("tiny"));
   },
-  // getLoadContext: () => {
-  //   // return the AppLoadContext
-  //   return { sayHello } as AppLoadContext
-  // },
-  // unstable_middleware: true,
+  getLoadContext: () => {
+    // return the AppLoadContext
+    return {} as AppLoadContext;
+  },
+  unstable_middleware: true,
 });

@@ -4,7 +4,6 @@ import { Await, useLoaderData } from "@remix-run/react";
 import { type NewPlan } from "drizzle/schema";
 import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { PlansModel } from "~/models/plans.server";
 import { SignupButton } from "~/components/subscription-button";
 import { buttonVariants } from "~/components/ui/button";
@@ -17,6 +16,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { Skeleton } from "~/components/ui/skeleton";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 import { cn } from "~/utils";
 
 export let handle: ExternalScriptsHandle = {
@@ -29,8 +29,8 @@ export let handle: ExternalScriptsHandle = {
   ],
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { user, org } = await requireUserOrg(request, params);
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const { user, org } = context.get(UserAndOrgContext);
   return defer({
     plans: PlansModel.getAll(),
     user,

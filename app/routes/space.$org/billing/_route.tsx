@@ -2,10 +2,10 @@ import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { Outlet, useLoaderData } from "@remix-run/react";
 import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { PlansModel } from "~/models/plans.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
 import { SubscriptionCard } from "~/components/subscription-card";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 
 export let handle: ExternalScriptsHandle = {
   scripts: [
@@ -17,8 +17,8 @@ export let handle: ExternalScriptsHandle = {
   ],
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { user, org } = await requireUserOrg(request, params);
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const { user, org } = context.get(UserAndOrgContext);
   const subscription = org.planId
     ? await SubscriptionsModel.getById(org.subscriptionId!)
     : null;

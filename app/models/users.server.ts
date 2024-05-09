@@ -53,6 +53,17 @@ export const UsersModel = {
       ),
     });
   },
+  getBySlug: async (slug: string) => {
+    return await serviceDb()
+      .select({
+        id: organizations.id,
+        dbUrl: organizations.dbUrl,
+        name: organizations.name,
+      })
+      .from(organizations)
+      .where(eq(organizations.slug, slug))
+      .get();
+  },
   getUserOrg: async (userId: string, organizationSlug: string) => {
     return await serviceDb()
       .select({

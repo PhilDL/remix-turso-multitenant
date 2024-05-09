@@ -36,7 +36,7 @@ export async function action({ request }: ActionFunctionArgs) {
   await register(submission.value);
 
   return await authenticator.authenticate("user-pass", clonedRequest, {
-    successRedirect: "/app/dashboard",
+    successRedirect: "/space/dashboard",
     failureRedirect: "/login",
   });
 }

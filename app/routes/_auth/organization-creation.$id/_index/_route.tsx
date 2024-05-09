@@ -86,7 +86,7 @@ export default function OrganizationCreation() {
               Your organization has been created successfully!
             </p>
             <Link
-              to={`/app/${org.slug}`}
+              to={`/space/${org.slug}`}
               className={buttonVariants({ variant: "default" })}
             >
               Go to your organization

@@ -26,7 +26,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const userOrganizations = await OrganizationsModel.getByUserId(userId);
   if (userOrganizations.length > 0) {
-    throw redirect(`/app/${userOrganizations[0]!.slug}`);
+    throw redirect(`/space/${userOrganizations[0]!.slug}`);
   }
   return json({ userId });
 }

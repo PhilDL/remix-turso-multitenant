@@ -9,5 +9,5 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (organization.length === 0) {
     throw redirect("/create-organization");
   }
-  throw redirect(`/app/${organization[0]!.slug}`);
+  throw redirect(`/space/${organization[0]!.slug}`);
 };

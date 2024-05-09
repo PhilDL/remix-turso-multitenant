@@ -1,11 +1,11 @@
 import { json, redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { z } from "zod";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { createCheckoutURL } from "~/utils/ls.server";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 
-export async function action({ request, params }: ActionFunctionArgs) {
-  const { user, org } = await requireUserOrg(request, params);
+export async function action({ request, context }: ActionFunctionArgs) {
+  const { user, org } = context.get(UserAndOrgContext);
   if (org.userRole !== "owner") {
     throw new Error("You must be an owner to checkout");
   }

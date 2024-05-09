@@ -1,13 +1,13 @@
 import { json, type LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 
-import { requireUserOrg } from "~/utils/auth.server";
 import { tenantDb } from "~/utils/db.tenant.server";
 import { AppLink } from "~/components/app-link";
 import { buttonVariants } from "~/components/ui/button";
+import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { org } = await requireUserOrg(request, params);
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const { org } = context.get(UserAndOrgContext);
   const db = tenantDb({ url: org.dbUrl! });
   const posts = await db.query.posts.findMany({});
   return json({ posts });

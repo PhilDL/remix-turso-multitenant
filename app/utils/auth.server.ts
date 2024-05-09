@@ -17,7 +17,7 @@ export const authenticator = new Authenticator<{ id: string }>(
 export async function requireAnonymous(request: Request) {
   const userId = await getUserId(request);
   if (userId) {
-    throw redirect("/app");
+    throw redirect("/space");
   }
 }
 
@@ -79,7 +79,6 @@ export async function requireUserOrg(
 ) {
   let slug = typeof orgSlug === "string" ? orgSlug : orgSlug.org;
   if (!slug) throw new Error("Organization slug is required");
-  console.log("slug", slug);
   const user = await requireUser(request, { redirectTo });
   const org = await UsersModel.getUserOrg(user.id, slug);
   if (!org) {

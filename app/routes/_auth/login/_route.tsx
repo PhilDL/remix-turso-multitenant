@@ -49,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   return await authenticator.authenticate("user-pass", clonedRequest, {
-    successRedirect: "/app",
+    successRedirect: "/space",
     failureRedirect: "/login",
   });
 }
