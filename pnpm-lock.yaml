@@ -8,9 +8,6 @@ patchedDependencies:
   remix-create-express-app@0.3.6:
     hash: vqdhgd6dfroundvpc5oaztdlvu
     path: patches/remix-create-express-app@0.3.6.patch
-  remix-express-dev-server@0.2.4:
-    hash: dmgto4gwcjwsuxwa2ucihfukhm
-    path: patches/remix-express-dev-server@0.2.4.patch
 
 importers:
 
@@ -235,7 +232,7 @@ importers:
         version: 3.7.4(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@types/react-dom@18.3.0)(@types/react@18.3.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       remix-express-dev-server:
         specifier: ^0.2.4
-        version: 0.2.4(patch_hash=dmgto4gwcjwsuxwa2ucihfukhm)(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7))
+        version: 0.2.4(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7))
       remix-flat-routes:
         specifier: ^0.6.5
         version: 0.6.5(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))
@@ -4114,7 +4111,6 @@ packages:
 
   loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
-    hasBin: true
 
   loupe@2.3.7:
     resolution: {integrity: sha512-zSMINGVYkdpYSOBmLi0D1Uo7JU9nVdQKrHxC8eYlV+9YKK9WePqAlL7lSlorG/U2Fw1w0hTBmaa/jrQ3UbPHtA==}
@@ -11558,7 +11554,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  remix-express-dev-server@0.2.4(patch_hash=dmgto4gwcjwsuxwa2ucihfukhm)(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7)):
+  remix-express-dev-server@0.2.4(@remix-run/dev@2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7)))(esbuild@0.19.12)(minimatch@9.0.4)(vite@5.2.11(@types/node@20.12.7)):
     dependencies:
       '@remix-run/dev': 2.9.1(@remix-run/react@2.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(typescript@5.1.6))(@remix-run/serve@2.9.1(typescript@5.1.6))(@types/node@20.12.7)(typescript@5.1.6)(vite@5.2.11(@types/node@20.12.7))
       esbuild: 0.19.12
