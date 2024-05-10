@@ -130,7 +130,7 @@
   },
   "pnpm": {
     "patchedDependencies": {
-      "remix-create-express-app@0.3.6": "patches/remix-create-express-app@0.3.6.patch"
+      "remix-create-express-app@0.3.6": "./patches/remix-create-express-app@0.3.6.patch"
     }
   }
 }

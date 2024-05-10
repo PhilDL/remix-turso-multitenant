@@ -18,7 +18,7 @@ RUN apt-get update -qq && \
     apt-get install -y build-essential pkg-config python-is-python3 openssl ca-certificates
 
 # Install node modules
-COPY --link pnpm-lock.yaml package.json patches ./
+COPY --link pnpm-lock.yaml package.json ./
 RUN pnpm install 
 
 # Copy application code
