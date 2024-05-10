@@ -46,6 +46,7 @@
     "@lemonsqueezy/lemonsqueezy.js": "^2.2.0",
     "@libsql/client": "^0.6.0",
     "@paralleldrive/cuid2": "^2.2.2",
+    "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.4",
     "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-dropdown-menu": "^2.0.6",
@@ -67,8 +68,8 @@
     "ky": "^1.2.4",
     "lucide-react": "^0.368.0",
     "morgan": "^1.10.0",
-    "react": "^19.0.0-beta-94eed63c49-20240425",
-    "react-dom": "^19.0.0-beta-94eed63c49-20240425",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "remix-auth": "^3.6.0",
     "remix-auth-form": "^1.5.0",
     "remix-create-express-app": "^0.3.6",
@@ -127,8 +128,10 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "overrides": {
-    "react": "$react",
-    "react-dom": "$react-dom"
+  "pnpm": {
+    "patchedDependencies": {
+      "remix-express-dev-server@0.2.4": "patches/remix-express-dev-server@0.2.4.patch",
+      "remix-create-express-app@0.3.6": "patches/remix-create-express-app@0.3.6.patch"
+    }
   }
 }

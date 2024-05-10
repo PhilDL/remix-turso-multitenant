@@ -1,14 +1,16 @@
 import { createId } from "@paralleldrive/cuid2";
+import type { LibSQLDatabase } from "drizzle-orm/libsql";
 import { posts } from "drizzle/tenant-schema";
 import slugify from "slugify";
 
-import { tenantDb } from "~/utils/db.tenant.server";
+import type * as schema from "../../../../../drizzle/tenant-schema";
 import type { NewPost } from "./new-post.schema";
 
-export const newPost = async ({ title, content }: NewPost, dbUrl: string) => {
+export const newPost = async (
+  { title, content, authorId }: NewPost & { authorId: string },
+  db: LibSQLDatabase<typeof schema>,
+) => {
   const slug = slugify(title, { strict: true, lower: true, trim: true });
-
-  const db = tenantDb({ url: dbUrl });
 
   const newPost = await db
     .insert(posts)
@@ -17,6 +19,7 @@ export const newPost = async ({ title, content }: NewPost, dbUrl: string) => {
       title,
       slug,
       content,
+      authorId,
     })
     .returning()
     .get();

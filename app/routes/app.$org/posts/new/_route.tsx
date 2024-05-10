@@ -7,20 +7,21 @@ import {
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
+import { LoaderIcon } from "lucide-react";
 
 import { appLink } from "~/utils/app-link";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
-import { UserAndOrgContext } from "~/middleware/require-user-and-org";
+import { TenantDBContext } from "~/middleware/require-tenant-db";
 import { toSlug } from "~/utils";
 import { NewPostSchema } from "./new-post.schema";
 import { newPost } from "./new-post.server";
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const { org } = context.get(UserAndOrgContext);
+  const { db, user, org } = context.get(TenantDBContext);
   const formData = await request.formData();
   const submission = await parseWithZod(formData, {
     schema: NewPostSchema,
@@ -32,13 +33,13 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
     return submission.reply();
   }
 
-  const post = await newPost(submission.value, org.dbUrl!);
+  const post = await newPost({ ...submission.value, authorId: user.id }, db);
   if (!post) {
     return submission.reply({
       formErrors: ["Failed to create post"],
     });
   }
-  throw redirect(appLink("/posts", org));
+  throw redirect(appLink("/posts/", org));
 };
 
 export default function NewPost() {
@@ -54,6 +55,9 @@ export default function NewPost() {
       return parseWithZod(formData, { schema: NewPostSchema });
     },
   });
+
+  const navigation = useNavigation();
+
   return (
     <div>
       <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
@@ -91,7 +95,12 @@ export default function NewPost() {
           </div>
         </div>
         <div className="flex flex-row-reverse">
-          <Button type="submit">Create Post</Button>
+          <Button type="submit" disabled={navigation.state !== "idle"}>
+            {navigation.state !== "idle" && (
+              <LoaderIcon className="mr-1 h-4 w-4 animate-spin" />
+            )}{" "}
+            Create Post
+          </Button>
         </div>
       </Form>
     </div>

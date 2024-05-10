@@ -1,16 +1,45 @@
-import { json, type LoaderFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import {
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import { useFetcher, useLoaderData } from "@remix-run/react";
+import { TrashIcon } from "lucide-react";
+import { z } from "zod";
 
-import { tenantDb } from "~/utils/db.tenant.server";
+import { PostsModel } from "~/models/posts.server";
 import { AppLink } from "~/components/app-link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { buttonVariants } from "~/components/ui/button";
-import { UserAndOrgContext } from "~/middleware/require-user-and-org";
+import { TenantDBContext } from "~/middleware/require-tenant-db";
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
-  const { org } = context.get(UserAndOrgContext);
-  const db = tenantDb({ url: org.dbUrl! });
+  const { db } = context.get(TenantDBContext);
   const posts = await db.query.posts.findMany({});
-  return json({ posts });
+  return { posts };
+};
+
+export const action = async ({ context, request }: ActionFunctionArgs) => {
+  const { db } = context.get(TenantDBContext);
+  const formData = await request.formData();
+  const intent = z.enum(["delete"]).parse(formData.get("intent"));
+  switch (intent) {
+    case "delete": {
+      const postId = z.string().parse(formData.get("postId"));
+      await PostsModel(db).delete(postId);
+      break;
+    }
+  }
+  return null;
 };
 
 export default function Dashboard() {
@@ -30,26 +59,7 @@ export default function Dashboard() {
       ) : (
         <ul className="mt-8 flex flex-col gap-4 divide-y divide-input">
           {posts.map((post) => (
-            <li key={post.id} className="flex flex-col gap-1">
-              <AppLink
-                to={`/posts/${post.slug}`}
-                className="flex flex-row items-center gap-2 text-xl font-semibold hover:text-primary"
-              >
-                <span>{post.title}</span> <span>–</span>
-                <span className="text-xs text-muted-foreground">
-                  {new Date((post.createdAt ?? 0) * 1000).toLocaleDateString()}
-                </span>
-              </AppLink>
-              {post.content ? (
-                <div className="text-md text-muted-foreground">
-                  {post.content?.length > 100
-                    ? post.content.slice(0, 100) + "..."
-                    : post.content}
-                </div>
-              ) : (
-                <span className="text-muted-foreground">No content</span>
-              )}
-            </li>
+            <PostPreview key={post.id} post={post} />
           ))}
         </ul>
       )}
@@ -64,3 +74,80 @@ export default function Dashboard() {
     </div>
   );
 }
+
+export type PostPreviewProps = {
+  post: {
+    id: string;
+    title: string;
+    slug: string;
+    content: string | null;
+    html: string | null;
+    lexical: string | null;
+    featuredImage: string | null;
+    excerpt: string | null;
+    createdAt: Date | null;
+    ogImage: string | null;
+  };
+};
+
+export const PostPreview = ({ post }: PostPreviewProps) => {
+  const deleteFetcher = useFetcher({ key: `delete-post-fetcher-${post.id}` });
+  // optimistic delete
+  if (deleteFetcher.formData?.get("postId") === post.id) {
+    return null;
+  }
+  return (
+    <li className="flex flex-col gap-1">
+      <AppLink
+        to={`/posts/${post.slug}`}
+        className="flex flex-row items-center gap-2 text-xl font-semibold hover:text-primary"
+      >
+        <span>{post.title}</span> <span>–</span>
+        <span className="text-xs text-muted-foreground">
+          {post.createdAt?.toLocaleDateString()}
+        </span>
+      </AppLink>
+      {post.content ? (
+        <div className="text-md text-muted-foreground">
+          {post.content?.length > 100
+            ? post.content.slice(0, 100) + "..."
+            : post.content}
+        </div>
+      ) : (
+        <span className="text-muted-foreground">No content</span>
+      )}
+      <AlertDialog>
+        <AlertDialogTrigger className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-muted focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+          <TrashIcon className="mr-2 h-4 w-4" /> Delete
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you certain?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone, it will delete that post
+              permanently.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+            <AlertDialogAction
+              type="submit"
+              onClick={() =>
+                deleteFetcher.submit(
+                  {
+                    intent: "delete",
+                    postId: post.id,
+                  },
+                  { method: "post" },
+                )
+              }
+            >
+              Confirm deletion
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </li>
+  );
+};

@@ -1,0 +1,16 @@
+diff --git a/dist/middleware.js b/dist/middleware.js
+index d95d4afda493efa0958f4fdefb7be29bab3cad51..c64ed27f1aaeca04e0d26c9cb2217a83281c7f8c 100644
+--- a/dist/middleware.js
++++ b/dist/middleware.js
+@@ -19,9 +19,10 @@ function createMiddlewareRequestHandler({
+     try {
+       const request = createRemixRequest(req, res);
+       let url = req.url;
+-      let isDataRequest = url.endsWith(".data");
++      let isDataRequest = url.endsWith(".data") || url.endsWith(".data?index");
+       let isRootData = url === "/_root.data";
+       if (isDataRequest) {
++        url = url.replace("?index", "");
+         url = isRootData ? "/" : url.replace(/\.data$/, "");
+         req.url = url;
+       }

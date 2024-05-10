@@ -9,21 +9,21 @@ This is not working for now, (15/04/2024):
 We should have a Turso gourp
 
 ```sh
-turso group create tantilument
+turso group create multenant
 ```
 
 You will also have a region at that point, set theses values in the `.env`
 
 ```sh
-TURSO_APP_GROUP=tantilument
+TURSO_APP_GROUP=multenant
 APP_PRIMARY_LOCATION=sin
 ```
 
 ### Create the global/service database
 
 ```bash
-turso db create service-db --group tantilument
-turso db tokens create service-db --group tantilument
+turso db create service-db --group multenant
+turso db tokens create service-db
 ```
 
 This will give you a token that you should put in your .env
@@ -53,21 +53,21 @@ pnpm drizzle:migrate
 ### Create the tenant database schema db
 
 ```bash
-turso db create tantilument-schema-db --group tantilument --type schema
-turso db show --url tantilument-schema-db
+turso db create multenant-schema-db --group multenant --type schema
+turso db show --url multenant-schema-db
 ```
 
 And store it in the .env
 
 ```sh
-TURSO_SCHEMA_DB_NAME=tantilument-schema-db
-TURSO_SCHEMA_DB_URL=libsql://tantilument-schema-db-phildl.turso.io
+TURSO_SCHEMA_DB_NAME=multenant-schema-db
+TURSO_SCHEMA_DB_URL=libsql://multenant-schema-db-phildl.turso.io
 ```
 
 ❌ At that point unfortunately we need to do manual migration of the schema-db
 
 ```sh
-turso db shell tantilument-schema-db
+turso db shell multenant-schema-db
 ```
 
 Then manually enter the migraitons in `drizzle/migrations-tenants`
@@ -75,13 +75,13 @@ Then manually enter the migraitons in `drizzle/migrations-tenants`
 ### Turso API
 
 ```sh
-turso auth api-tokens mint tantilument
+turso auth api-tokens mint multenant
 ```
 
 And store the token in the .env
 
 ```sh
-APP_NAME=tantilument
+APP_NAME=multenant
 TURSO_API_TOKEN=new-api-token
 TURSO_API_URL=https://api.turso.tech
 ```
