@@ -10,9 +10,9 @@ export const AppLink = ({ children, to, org, ...rest }: AppLinkProps) => {
     throw new Error("This component require an organization slug to be found");
   }
   if (typeof to === "string") {
-    to = `/space/${orgSlug}${to.startsWith("/") ? "" : "/"}${to}`;
+    to = `/app/${orgSlug}${to.startsWith("/") ? "" : "/"}${to}`;
   } else {
-    to.pathname = `/space/${orgSlug}${to.pathname?.startsWith("/") ? "" : "/"}${to.pathname}`;
+    to.pathname = `/app/${orgSlug}${to.pathname?.startsWith("/") ? "" : "/"}${to.pathname}`;
   }
 
   return (

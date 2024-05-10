@@ -10,6 +10,7 @@ import {
 } from "@remix-run/node";
 import { Form, Link, useActionData } from "@remix-run/react";
 
+import { appLink } from "~/utils/app-link";
 import { requireUserId } from "~/utils/auth.server";
 import { OrganizationsModel } from "~/models/organizations.server";
 import { Button } from "~/components/ui/button";
@@ -26,7 +27,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await requireUserId(request);
   const userOrganizations = await OrganizationsModel.getByUserId(userId);
   if (userOrganizations.length > 0) {
-    throw redirect(`/space/${userOrganizations[0]!.slug}`);
+    throw redirect(appLink("/", userOrganizations[0]!));
   }
   return json({ userId });
 }

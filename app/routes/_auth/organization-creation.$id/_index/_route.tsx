@@ -10,6 +10,7 @@ import {
 import { useEventSource } from "remix-utils/sse/react";
 import { z } from "zod";
 
+import { appLink } from "~/utils/app-link";
 import { OrganizationsModel } from "~/models/organizations.server";
 import { buttonVariants } from "~/components/ui/button";
 import { cn } from "~/utils";
@@ -86,7 +87,7 @@ export default function OrganizationCreation() {
               Your organization has been created successfully!
             </p>
             <Link
-              to={`/space/${org.slug}`}
+              to={appLink("/", org)}
               className={buttonVariants({ variant: "default" })}
             >
               Go to your organization

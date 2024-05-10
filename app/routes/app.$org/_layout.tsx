@@ -3,6 +3,7 @@ import { Form, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 import { BookIcon, CreditCardIcon, LayoutDashboardIcon } from "lucide-react";
 import { serverOnly$ } from "vite-env-only";
 
+import { appLink } from "~/utils/app-link";
 import { initials } from "~/utils/display";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -37,7 +38,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/space/${org.slug}/dashboard`}
+                to={appLink("/dashboard", org)}
                 prefetch="intent"
               >
                 <LayoutDashboardIcon className="mr-2 h-4 w-4" /> Dashboard
@@ -52,7 +53,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/space/${org.slug}/posts`}
+                to={appLink("/posts", org)}
                 prefetch="render"
               >
                 <BookIcon className="mr-2 h-4 w-4" /> Posts
@@ -67,7 +68,7 @@ export default function AppLayout() {
                     isActive && "text-primary",
                   )
                 }
-                to={`/space/${org.slug}/billing`}
+                to={appLink("/billing", org)}
                 prefetch="render"
               >
                 <CreditCardIcon className="mr-2 h-4 w-4" /> Billing

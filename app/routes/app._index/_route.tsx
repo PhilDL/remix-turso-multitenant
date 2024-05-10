@@ -1,5 +1,6 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
 
+import { appLink } from "~/utils/app-link";
 import { requireUserId } from "~/utils/auth.server";
 import { OrganizationsModel } from "~/models/organizations.server";
 
@@ -9,5 +10,5 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   if (organization.length === 0) {
     throw redirect("/create-organization");
   }
-  throw redirect(`/space/${organization[0]!.slug}`);
+  throw redirect(appLink("/", organization[0]!));
 };

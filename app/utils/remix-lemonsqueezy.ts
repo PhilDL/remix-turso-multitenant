@@ -43,7 +43,7 @@ export const RemixLemonSqueezy = (
         },
         productOptions: {
           enabledVariants: [Number(planId)],
-          redirectUrl: `${env.PUBLIC_APP_URL}/space/dashboard/`,
+          redirectUrl: `${env.PUBLIC_APP_URL}/app/dashboard/`,
           receiptButtonText: "Go to Dashboard",
           receiptThankYouNote: "Thank you for signing up to Multenant",
         },
