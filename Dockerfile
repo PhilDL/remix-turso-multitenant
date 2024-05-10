@@ -17,12 +17,14 @@ RUN corepack enable
 RUN apt-get update -qq && \
     apt-get install -y build-essential pkg-config python-is-python3 openssl ca-certificates
 
+# Copy application code
+COPY --link . .
+
 # Install node modules
 COPY --link pnpm-lock.yaml package.json ./
 RUN pnpm install 
 
-# Copy application code
-COPY --link . .
+
 
 # Build application
 RUN pnpm run build

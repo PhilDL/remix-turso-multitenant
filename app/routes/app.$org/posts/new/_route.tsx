@@ -6,8 +6,17 @@ import {
   useForm,
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { redirect, type ActionFunctionArgs } from "@remix-run/node";
-import { Form, useActionData, useNavigation } from "@remix-run/react";
+import {
+  redirect,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
+} from "@remix-run/node";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import { LoaderIcon } from "lucide-react";
 
 import { appLink } from "~/utils/app-link";
@@ -42,7 +51,13 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   throw redirect(appLink("/posts/", org));
 };
 
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const { org } = context.get(TenantDBContext);
+  return { org };
+};
+
 export default function NewPost() {
+  const { org } = useLoaderData<typeof loader>();
   const lastResult = useActionData<typeof action>();
   const [slugPreview, setSlugPreview] = useState<string | null>(null);
 
@@ -67,6 +82,7 @@ export default function NewPost() {
         {...getFormProps(form)}
         className="flex w-[28rem] flex-col gap-3 rounded-md border border-input bg-card p-8"
         method="post"
+        action={appLink("/posts/new/", org)}
       >
         <div>{form.errors}</div>
         <div className="grid w-full max-w-sm items-center gap-1.5">
