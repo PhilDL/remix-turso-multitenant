@@ -19,7 +19,7 @@ import { Label } from "~/components/ui/label";
 import { toSlug } from "~/utils";
 import { CreateOrganizationSchema } from "./create-organization.schema";
 import {
-  register,
+  createOrganization,
   ServerCreateOrganizationSchema,
 } from "./create-organization.server";
 
@@ -49,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
     return submission.reply();
   }
   const creationId = createId();
-  void register(submission.value, { creationId, userId });
+  void createOrganization(submission.value, { creationId, userId });
   throw redirect(`/organization-creation/${creationId}`);
 }
 

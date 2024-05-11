@@ -1,4 +1,5 @@
 import {
+  cancelSubscription,
   createCheckout,
   createWebhook,
   getPrice,
@@ -272,3 +273,31 @@ export async function processWebhookEvent(webhookEvent: WebhookEvent) {
     processingError,
   });
 }
+
+export const cancelSub = async (id: string, orgId: string) => {
+  configureLemonSqueezy();
+
+  const subscription = await SubscriptionsModel.getByIdAndOrgId(id, orgId);
+
+  if (!subscription) {
+    throw new Error(`Subscription #${id} not found.`);
+  }
+
+  const cancelledSub = await cancelSubscription(subscription.lemonSqueezyId);
+
+  if (cancelledSub.error) {
+    throw new Error(cancelledSub.error.message);
+  }
+
+  // Update the db
+  try {
+    await SubscriptionsModel.update(subscription.id, {
+      status: cancelledSub.data?.data.attributes.status,
+      statusFormatted: cancelledSub.data?.data.attributes.status_formatted,
+      endsAt: cancelledSub.data?.data.attributes.ends_at,
+    });
+  } catch (error) {
+    throw new Error(`Failed to cancel Subscription #${id} in the database.`);
+  }
+  return cancelledSub;
+};

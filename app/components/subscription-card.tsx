@@ -1,8 +1,17 @@
 import type { Subscription as LemonSqueezySubscription } from "@lemonsqueezy/lemonsqueezy.js";
-import { useNavigation } from "@remix-run/react";
+import { Link, useFetcher, useNavigation } from "@remix-run/react";
 import type { SelectPlans, Subscription } from "drizzle/schema";
-import { LoaderCircleIcon, MoreHorizontal } from "lucide-react";
+import {
+  BanIcon,
+  CreditCardIcon,
+  LoaderCircleIcon,
+  MoreHorizontal,
+  PauseIcon,
+  SquareUserRoundIcon,
+  TrashIcon,
+} from "lucide-react";
 
+import { appLink } from "~/utils/app-link";
 import { AppLink } from "~/components/app-link";
 import { SubscriptionDate } from "~/components/subscription-card/date";
 import { SubscriptionStatus } from "~/components/subscription-card/status";
@@ -16,9 +25,24 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn, formatPrice } from "~/utils";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 export type SubscriptionCardProps = {
   subscription: Subscription & { plan: SelectPlans };
+  org: {
+    id: string;
+    slug: string;
+  };
 };
 
 export type SubscriptionStatusType =
@@ -28,7 +52,10 @@ export function isValidSubscription(status: SubscriptionStatusType) {
   return status !== "cancelled" && status !== "expired" && status !== "unpaid";
 }
 
-export const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
+export const SubscriptionCard = ({
+  subscription,
+  org,
+}: SubscriptionCardProps) => {
   let formattedPrice = formatPrice(subscription.price);
   if (subscription.plan.isUsageBased) {
     formattedPrice += "/unit";
@@ -38,6 +65,7 @@ export const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
       ? `every ${subscription.plan.intervalCount} `
       : "every";
   const navigation = useNavigation();
+  const fetcher = useFetcher();
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-between gap-4 px-2 py-3 text-sm lg:flex-nowrap">
@@ -101,14 +129,74 @@ export const SubscriptionCard = ({ subscription }: SubscriptionCardProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>Pause payments</DropdownMenuItem>
-                <DropdownMenuItem>Customer portal</DropdownMenuItem>
-                <DropdownMenuItem>Update payment method</DropdownMenuItem>
-                <DropdownMenuItem>Customer portal</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <PauseIcon className="mr-2 h-4 w-4" /> Pause payments
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCardIcon className="mr-2 h-4 w-4" /> Update payment
+                  method
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <SquareUserRoundIcon className="mr-2 h-4 w-4" /> Customer
+                  portal
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Cancel subscription</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link
+                    to={appLink(
+                      `/billing/subscriptions/${subscription.id}/cancel`,
+                      org,
+                    )}
+                  >
+                    <BanIcon className="mr-2 h-4 w-4" /> Cancel
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export const NoSubscriptionCard = () => {
+  const navigation = useNavigation();
+
+  return (
+    <div className="flex flex-row flex-wrap items-center justify-between gap-4 px-2 py-3 text-sm lg:flex-nowrap">
+      <div className="flex flex-col gap-2">
+        <header className="flex items-center justify-between gap-3">
+          <div className="flex min-h-8 flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 className={cn("text-lg text-muted-foreground")}>
+              Free (Basic free tier)
+            </h2>
+          </div>
+        </header>
+        <div className="flex flex-wrap items-center gap-2">
+          <p>Free</p>
+          <SubscriptionStatus
+            status={"active" as SubscriptionStatusType}
+            statusFormatted={"Active"}
+            isPaused={false}
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        {isValidSubscription("active" as SubscriptionStatusType) && (
+          <>
+            <AppLink
+              to={`/billing/change-plan`}
+              className={buttonVariants({ variant: "secondary" })}
+              prefetch="intent"
+            >
+              {navigation.state !== "idle" &&
+                navigation.location.pathname.endsWith(
+                  "billing/change-plan",
+                ) && <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />}
+              Upgrade
+            </AppLink>
           </>
         )}
       </div>

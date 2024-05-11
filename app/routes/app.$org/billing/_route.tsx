@@ -4,7 +4,10 @@ import type { ExternalScriptsHandle } from "remix-utils/external-scripts";
 
 import { PlansModel } from "~/models/plans.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
-import { SubscriptionCard } from "~/components/subscription-card";
+import {
+  NoSubscriptionCard,
+  SubscriptionCard,
+} from "~/components/subscription-card";
 import { UserAndOrgContext } from "~/middleware/require-user-and-org";
 
 export let handle: ExternalScriptsHandle = {
@@ -32,7 +35,7 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
 };
 
 export default function Billing() {
-  const { subscription } = useLoaderData<typeof loader>();
+  const { subscription, org } = useLoaderData<typeof loader>();
   return (
     <div className="flex flex-col gap-8">
       <header>
@@ -44,7 +47,11 @@ export default function Billing() {
         </p>
       </header>
       <section className="shadow-xs flex max-w-3xl flex-col divide-y divide-input rounded-lg border border-input px-4 py-2.5 text-sm">
-        {subscription && <SubscriptionCard subscription={subscription} />}
+        {subscription ? (
+          <SubscriptionCard subscription={subscription} org={org} />
+        ) : (
+          <NoSubscriptionCard />
+        )}
       </section>
       <Outlet />
     </div>

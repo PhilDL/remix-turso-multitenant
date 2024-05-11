@@ -127,6 +127,7 @@ export const subscriptions = sqliteTable("subscription", {
 });
 
 export type SubscriptionCreate = typeof subscriptions.$inferInsert;
+export type SubscriptionUpdate = Partial<SubscriptionCreate>;
 export type Subscription = typeof subscriptions.$inferSelect;
 
 export const webhookEvents = sqliteTable("webhookEvent", {

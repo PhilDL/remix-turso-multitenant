@@ -1,17 +1,10 @@
 import type { Subscription } from "@lemonsqueezy/lemonsqueezy.js";
 
+import { formatDate } from "~/utils/display";
+
 export type SubscriptionStatusType =
   Subscription["data"]["attributes"]["status"];
 
-export const formatDate = (date: string | number | Date | null | undefined) => {
-  if (!date) return "";
-
-  return new Date(date).toLocaleString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-};
 export type SubscriptionDateProps = {
   endsAt?: string | null;
   renewsAt?: string | null;

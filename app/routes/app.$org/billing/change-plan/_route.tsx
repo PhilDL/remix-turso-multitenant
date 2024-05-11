@@ -5,7 +5,7 @@ import type { NewPlan } from "drizzle/schema";
 import { PlansModel } from "~/models/plans.server";
 import { SubscriptionsModel } from "~/models/subscriptions.server";
 import { SignupButton } from "~/components/subscription-button";
-import { buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -61,6 +61,7 @@ export default function ChangePlan() {
           </DialogDescription>
         </DialogHeader>
         <div className="mb-5 mt-4 grid max-w-3xl grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-5">
+          <FreePlan orgSlug={org.slug} orgPlanId={org.planId} />
           {plans.map((plan) => (
             <Plan
               plan={plan}
@@ -95,6 +96,7 @@ export const Plan = ({
       <CardContent>
         {description ? (
           <div
+            className="prose prose-xs text-xs text-muted-foreground"
             dangerouslySetInnerHTML={{
               // Ideally sanitize the description first.
               __html: description,
@@ -122,6 +124,45 @@ export const Plan = ({
           </div>
         ) : (
           <SignupButton plan={plan} orgSlug={orgSlug} />
+        )}
+      </CardFooter>
+    </Card>
+  );
+};
+
+export const FreePlan = ({
+  orgSlug,
+  orgPlanId,
+}: {
+  orgSlug: string;
+  orgPlanId?: string | null;
+}) => {
+  return (
+    <Card className="flex max-w-sm flex-col">
+      <CardHeader>
+        <CardTitle className="text-xl">Free</CardTitle>
+        <CardDescription>(Basic free tier)</CardDescription>
+      </CardHeader>
+      <CardContent className="flex flex-1 flex-col">
+        <div className="prose prose-xs flex-1 text-xs text-muted-foreground">
+          This is the basic free tier
+        </div>
+
+        <div>
+          <span className="mr-0.5 text-xl text-accent-foreground">–</span>
+        </div>
+      </CardContent>
+
+      <CardFooter className="flex w-full">
+        {!orgPlanId ? (
+          <div
+            className={cn(buttonVariants({ variant: "secondary" }), "w-full")}
+            aria-disabled="true"
+          >
+            Current Plan
+          </div>
+        ) : (
+          <Button>Downgrade</Button>
         )}
       </CardFooter>
     </Card>
