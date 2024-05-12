@@ -97,7 +97,9 @@ export type PostPreviewProps = {
 };
 
 export const PostPreview = ({ post }: PostPreviewProps) => {
-  const deleteFetcher = useFetcher({ key: `delete-post-fetcher-${post.id}` });
+  const deleteFetcher = useFetcher<typeof action>({
+    key: `delete-post-fetcher-${post.id}`,
+  });
   // optimistic delete
   if (deleteFetcher.formData?.get("postId") === post.id) {
     return null;

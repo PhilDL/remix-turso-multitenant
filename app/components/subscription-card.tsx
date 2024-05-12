@@ -1,5 +1,5 @@
 import type { Subscription as LemonSqueezySubscription } from "@lemonsqueezy/lemonsqueezy.js";
-import { Link, useFetcher, useNavigation } from "@remix-run/react";
+import { Link, useNavigation } from "@remix-run/react";
 import type { SelectPlans, Subscription } from "drizzle/schema";
 import {
   BanIcon,
@@ -8,7 +8,6 @@ import {
   MoreHorizontal,
   PauseIcon,
   SquareUserRoundIcon,
-  TrashIcon,
 } from "lucide-react";
 
 import { appLink } from "~/utils/app-link";
@@ -25,17 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { cn, formatPrice } from "~/utils";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "./ui/alert-dialog";
 
 export type SubscriptionCardProps = {
   subscription: Subscription & { plan: SelectPlans };
@@ -65,7 +53,6 @@ export const SubscriptionCard = ({
       ? `every ${subscription.plan.intervalCount} `
       : "every";
   const navigation = useNavigation();
-  const fetcher = useFetcher();
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-between gap-4 px-2 py-3 text-sm lg:flex-nowrap">
