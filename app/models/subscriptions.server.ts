@@ -1,8 +1,9 @@
 import { createId } from "@paralleldrive/cuid2";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   plans,
   subscriptions,
+  SubscriptionUpdate,
   type SelectPlans,
   type Subscription,
   type SubscriptionCreate,
@@ -36,6 +37,23 @@ export const SubscriptionsModel = {
       .get();
   },
 
+  getByIdAndOrgId: async (
+    id: string,
+    organizationId: string,
+  ): Promise<Subscription | undefined> => {
+    return await serviceDb()
+      .select()
+      .from(subscriptions)
+      .where(
+        and(
+          eq(subscriptions.id, id),
+          eq(subscriptions.organizationId, organizationId),
+        ),
+      )
+      .limit(1)
+      .get();
+  },
+
   getById: async (
     id: string,
   ): Promise<(Subscription & { plan: SelectPlans }) | undefined> => {
@@ -49,5 +67,12 @@ export const SubscriptionsModel = {
     if (!res) return;
     const { subscription: sub, plans: resPlans } = res;
     return { ...sub, plan: resPlans };
+  },
+
+  update: async (id: string, subscription: SubscriptionUpdate) => {
+    return await serviceDb()
+      .update(subscriptions)
+      .set(subscription)
+      .where(eq(subscriptions.id, id));
   },
 };

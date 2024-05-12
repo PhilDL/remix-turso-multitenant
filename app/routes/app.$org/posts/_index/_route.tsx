@@ -3,7 +3,7 @@ import {
   type LoaderFunctionArgs,
 } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import { TrashIcon } from "lucide-react";
+import { MoreVertical, TrashIcon } from "lucide-react";
 import { z } from "zod";
 
 import { PostsModel } from "~/models/posts.server";
@@ -19,7 +19,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
-import { buttonVariants } from "~/components/ui/button";
+import { Button, buttonVariants } from "~/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
 import { TenantDBContext } from "~/middleware/require-tenant-db";
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
@@ -57,7 +63,7 @@ export default function Dashboard() {
           <span className="mt-4 text-muted-foreground">No posts found</span>{" "}
         </div>
       ) : (
-        <ul className="mt-8 flex flex-col gap-4 divide-y divide-input">
+        <ul className="mt-8 flex flex-col gap-4 divide-y divide-input rounded-md border border-input">
           {posts.map((post) => (
             <PostPreview key={post.id} post={post} />
           ))}
@@ -97,57 +103,71 @@ export const PostPreview = ({ post }: PostPreviewProps) => {
     return null;
   }
   return (
-    <li className="flex flex-col gap-1">
-      <AppLink
-        to={`/posts/${post.slug}`}
-        className="flex flex-row items-center gap-2 text-xl font-semibold hover:text-primary"
-      >
-        <span>{post.title}</span> <span>–</span>
-        <span className="text-xs text-muted-foreground">
-          {post.createdAt?.toLocaleDateString()}
-        </span>
-      </AppLink>
-      {post.content ? (
-        <div className="text-md text-muted-foreground">
-          {post.content?.length > 100
-            ? post.content.slice(0, 100) + "..."
-            : post.content}
-        </div>
-      ) : (
-        <span className="text-muted-foreground">No content</span>
-      )}
-      <AlertDialog>
-        <AlertDialogTrigger className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-muted focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-          <TrashIcon className="mr-2 h-4 w-4" /> Delete
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you certain?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone, it will delete that post
-              permanently.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+    <li className="flex flex-row items-center gap-1 p-4">
+      <div className="flex flex-1 flex-col">
+        <AppLink
+          to={`/posts/${post.slug}`}
+          className="flex flex-row items-center gap-2 text-xl font-semibold hover:text-primary"
+        >
+          <span>{post.title}</span> <span>–</span>
+          <span className="text-xs text-muted-foreground">
+            {post.createdAt?.toLocaleDateString()}
+          </span>
+        </AppLink>
+        {post.content ? (
+          <div className="text-md text-muted-foreground">
+            {post.content?.length > 100
+              ? post.content.slice(0, 100) + "..."
+              : post.content}
+          </div>
+        ) : (
+          <span className="text-muted-foreground">No content</span>
+        )}
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open menu</span>
+            <MoreVertical className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-            <AlertDialogAction
-              type="submit"
-              onClick={() =>
-                deleteFetcher.submit(
-                  {
-                    intent: "delete",
-                    postId: post.id,
-                  },
-                  { method: "post" },
-                )
-              }
-            >
-              Confirm deletion
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <AlertDialog>
+            <AlertDialogTrigger className="relative flex w-full cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-muted focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+              <TrashIcon className="mr-2 h-4 w-4" /> Delete
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you certain?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone, it will delete that post
+                  permanently.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+
+                <AlertDialogAction
+                  type="submit"
+                  onClick={() =>
+                    deleteFetcher.submit(
+                      {
+                        intent: "delete",
+                        postId: post.id,
+                      },
+                      { method: "post" },
+                    )
+                  }
+                >
+                  Confirm deletion
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </li>
   );
 };

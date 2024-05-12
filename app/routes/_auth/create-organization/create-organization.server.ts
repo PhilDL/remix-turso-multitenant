@@ -41,7 +41,7 @@ export const emitOperationsState = (
 
 // this input is branded "ServerRegisterData" to be sure that we went through
 // all the validation steps
-export const register = async (
+export const createOrganization = async (
   { slug, name, website }: ServerRegisterData,
   { userId, creationId }: { userId: string; creationId: string },
 ) => {
