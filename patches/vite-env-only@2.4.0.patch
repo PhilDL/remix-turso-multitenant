@@ -1,0 +1,774 @@
+diff --git a/dist/index.js b/dist/index.js
+index 4f31cd8560ef61465564b4364e0cc71ad229efb6..662c8b4916c8c6cdfe546ca09e6cc140dad057cb 100644
+--- a/dist/index.js
++++ b/dist/index.js
+@@ -1,37 +1,31 @@
+ // src/index.ts
+-import path2 from "path";
++import path2 from "path"
+ 
+ // package.json
+-var name = "vite-env-only";
++var name = "vite-env-only"
+ var package_default = {
+   name,
+   version: "2.4.0",
+-  description: "Minimal Vite plugin for for isolating server-only and client-only code",
+-  keywords: [
+-    "vite-plugin",
+-    "env",
+-    "only",
+-    "client",
+-    "server",
+-    "macro"
+-  ],
++  description:
++    "Minimal Vite plugin for for isolating server-only and client-only code",
++  keywords: ["vite-plugin", "env", "only", "client", "server", "macro"],
+   repository: "pcattori/vite-env-only",
+   author: "pcattori",
+   license: "MIT",
+   type: "module",
+   exports: {
+     import: "./dist/index.js",
+-    require: "./dist/index.cjs"
++    require: "./dist/index.cjs",
+   },
+   scripts: {
+     typecheck: "tsc",
+     build: "tsup src/index.ts --dts --format esm,cjs --shims",
+     test: "vitest",
+-    changeset: "changeset"
++    changeset: "changeset",
+   },
+   packageManager: "pnpm@9.1.1",
+   peerDependencies: {
+-    vite: "*"
++    vite: "*",
+   },
+   devDependencies: {
+     "@changesets/cli": "^2.27.2",
+@@ -44,7 +38,7 @@ var package_default = {
+     tsup: "^8.0.1",
+     typescript: "^5.3.3",
+     vite: "^5.0.11",
+-    vitest: "^1.1.2"
++    vitest: "^1.1.2",
+   },
+   dependencies: {
+     "@babel/core": "^7.23.7",
+@@ -52,85 +46,85 @@ var package_default = {
+     "@babel/parser": "^7.23.6",
+     "@babel/traverse": "^7.23.7",
+     "@babel/types": "^7.23.6",
+-    micromatch: "^4.0.5"
++    micromatch: "^4.0.5",
+   },
+   prettier: {
+-    semi: false
++    semi: false,
+   },
+-  files: [
+-    "dist"
+-  ],
++  files: ["dist"],
+   release: {
+-    branches: [
+-      "main"
+-    ]
+-  }
+-};
++    branches: ["main"],
++  },
++}
+ 
+ // src/transform.ts
+-import * as babel from "@babel/core";
++import * as babel from "@babel/core"
+ 
+ // src/babel.ts
+-import { parse } from "@babel/parser";
+-import * as t from "@babel/types";
+-import { createRequire } from "module";
+-var require2 = createRequire(import.meta.url);
+-var _traverse = require2("@babel/traverse");
+-var traverse = _traverse.default;
+-var _generate = require2("@babel/generator");
+-var generate = _generate.default;
++import { parse } from "@babel/parser"
++import * as t from "@babel/types"
++import { createRequire } from "module"
++var require2 = createRequire(import.meta.url)
++var _traverse = require2("@babel/traverse")
++var traverse = _traverse.default
++var _generate = require2("@babel/generator")
++var generate = _generate.default
+ 
+ // src/dce.ts
+ function findReferencedIdentifiers(ast) {
+-  const refs = /* @__PURE__ */ new Set();
++  const refs = /* @__PURE__ */ new Set()
+   function markFunction(path3) {
+-    const ident = getIdentifier(path3);
++    const ident = getIdentifier(path3)
+     if (ident?.node && isIdentifierReferenced(ident)) {
+-      refs.add(ident);
++      refs.add(ident)
+     }
+   }
+   function markImport(path3) {
+-    const local = path3.get("local");
++    const local = path3.get("local")
+     if (isIdentifierReferenced(local)) {
+-      refs.add(local);
++      refs.add(local)
+     }
+   }
+   traverse(ast, {
+     VariableDeclarator(path3) {
+       if (path3.node.id.type === "Identifier") {
+-        const local = path3.get("id");
++        const local = path3.get("id")
+         if (isIdentifierReferenced(local)) {
+-          refs.add(local);
++          refs.add(local)
+         }
+       } else if (path3.node.id.type === "ObjectPattern") {
+-        const pattern = path3.get("id");
+-        const properties = pattern.get("properties");
++        const pattern = path3.get("id")
++        const properties = pattern.get("properties")
+         properties.forEach((p) => {
+           const local = p.get(
+-            p.node.type === "ObjectProperty" ? "value" : p.node.type === "RestElement" ? "argument" : function() {
+-              throw new Error("invariant");
+-            }()
+-          );
++            p.node.type === "ObjectProperty"
++              ? "value"
++              : p.node.type === "RestElement"
++              ? "argument"
++              : (function () {
++                  throw new Error("invariant")
++                })()
++          )
+           if (isIdentifierReferenced(local)) {
+-            refs.add(local);
++            refs.add(local)
+           }
+-        });
++        })
+       } else if (path3.node.id.type === "ArrayPattern") {
+-        const pattern = path3.get("id");
+-        const elements = pattern.get("elements");
++        const pattern = path3.get("id")
++        const elements = pattern.get("elements")
+         elements.forEach((e) => {
+-          let local;
++          let local
+           if (e.node?.type === "Identifier") {
+-            local = e;
++            local = e
+           } else if (e.node?.type === "RestElement") {
+-            local = e.get("argument");
++            local = e.get("argument")
+           } else {
+-            return;
++            return
+           }
+           if (isIdentifierReferenced(local)) {
+-            refs.add(local);
++            refs.add(local)
+           }
+-        });
++        })
+       }
+     },
+     FunctionDeclaration: markFunction,
+@@ -138,92 +132,103 @@ function findReferencedIdentifiers(ast) {
+     ArrowFunctionExpression: markFunction,
+     ImportSpecifier: markImport,
+     ImportDefaultSpecifier: markImport,
+-    ImportNamespaceSpecifier: markImport
+-  });
+-  return refs;
++    ImportNamespaceSpecifier: markImport,
++  })
++  return refs
+ }
+ var eliminateUnreferencedIdentifiers = (ast, refs) => {
+-  let referencesRemovedInThisPass;
++  let referencesRemovedInThisPass
+   let shouldBeRemoved = (ident) => {
+-    if (isIdentifierReferenced(ident))
+-      return false;
+-    if (!refs)
+-      return true;
+-    return refs.has(ident);
+-  };
++    if (isIdentifierReferenced(ident)) return false
++    if (!refs) return true
++    return refs.has(ident)
++  }
+   let sweepFunction = (path3) => {
+-    let identifier = getIdentifier(path3);
++    let identifier = getIdentifier(path3)
+     if (identifier?.node && shouldBeRemoved(identifier)) {
+-      ++referencesRemovedInThisPass;
+-      if (t.isAssignmentExpression(path3.parentPath.node) || t.isVariableDeclarator(path3.parentPath.node)) {
+-        path3.parentPath.remove();
++      ++referencesRemovedInThisPass
++      if (
++        t.isAssignmentExpression(path3.parentPath.node) ||
++        t.isVariableDeclarator(path3.parentPath.node)
++      ) {
++        path3.parentPath.remove()
+       } else {
+-        path3.remove();
++        path3.remove()
+       }
+     }
+-  };
++  }
+   let sweepImport = (path3) => {
+-    let local = path3.get("local");
++    let local = path3.get("local")
+     if (shouldBeRemoved(local)) {
+-      ++referencesRemovedInThisPass;
+-      path3.remove();
++      ++referencesRemovedInThisPass
++      path3.remove()
+       if (path3.parent.specifiers.length === 0) {
+-        path3.parentPath.remove();
++        path3.parentPath.remove()
+       }
+     }
+-  };
++  }
+   do {
+-    referencesRemovedInThisPass = 0;
++    referencesRemovedInThisPass = 0
+     traverse(ast, {
+       Program(path3) {
+-        path3.scope.crawl();
++        path3.scope.crawl()
+       },
+       // eslint-disable-next-line no-loop-func
+       VariableDeclarator(path3) {
+         if (path3.node.id.type === "Identifier") {
+-          let local = path3.get("id");
++          let local = path3.get("id")
+           if (shouldBeRemoved(local)) {
+-            ++referencesRemovedInThisPass;
+-            path3.remove();
++            ++referencesRemovedInThisPass
++            path3.remove()
+           }
+         } else if (path3.node.id.type === "ObjectPattern") {
+-          let pattern = path3.get("id");
+-          let beforeCount = referencesRemovedInThisPass;
+-          let properties = pattern.get("properties");
++          let pattern = path3.get("id")
++          let beforeCount = referencesRemovedInThisPass
++          let properties = pattern.get("properties")
+           properties.forEach((property) => {
+             let local = property.get(
+-              property.node.type === "ObjectProperty" ? "value" : property.node.type === "RestElement" ? "argument" : function() {
+-                throw new Error("invariant");
+-              }()
+-            );
++              property.node.type === "ObjectProperty"
++                ? "value"
++                : property.node.type === "RestElement"
++                ? "argument"
++                : (function () {
++                    throw new Error("invariant")
++                  })()
++            )
+             if (shouldBeRemoved(local)) {
+-              ++referencesRemovedInThisPass;
+-              property.remove();
++              ++referencesRemovedInThisPass
++              property.remove()
+             }
+-          });
+-          if (beforeCount !== referencesRemovedInThisPass && pattern.get("properties").length < 1) {
+-            path3.remove();
++          })
++          if (
++            beforeCount !== referencesRemovedInThisPass &&
++            pattern.get("properties").length < 1
++          ) {
++            path3.remove()
+           }
+         } else if (path3.node.id.type === "ArrayPattern") {
+-          let pattern = path3.get("id");
+-          let beforeCount = referencesRemovedInThisPass;
+-          let elements = pattern.get("elements");
++          let pattern = path3.get("id")
++          let beforeCount = referencesRemovedInThisPass
++          let elements = pattern.get("elements")
+           elements.forEach((e) => {
+-            let local;
++            let local
+             if (e.node?.type === "Identifier") {
+-              local = e;
++              local = e
+             } else if (e.node?.type === "RestElement") {
+-              local = e.get("argument");
++              local = e.get("argument")
+             } else {
+-              return;
++              return
+             }
+             if (shouldBeRemoved(local)) {
+-              ++referencesRemovedInThisPass;
+-              e.remove();
++              ++referencesRemovedInThisPass
++              e.remove()
+             }
+-          });
+-          if (beforeCount !== referencesRemovedInThisPass && pattern.get("elements").length < 1) {
+-            path3.remove();
++          })
++          if (
++            beforeCount !== referencesRemovedInThisPass &&
++            pattern.get("elements").length < 1
++          ) {
++            path3.remove()
+           }
+         }
+       },
+@@ -232,191 +237,177 @@ var eliminateUnreferencedIdentifiers = (ast, refs) => {
+       ArrowFunctionExpression: sweepFunction,
+       ImportSpecifier: sweepImport,
+       ImportDefaultSpecifier: sweepImport,
+-      ImportNamespaceSpecifier: sweepImport
+-    });
+-  } while (referencesRemovedInThisPass);
+-};
++      ImportNamespaceSpecifier: sweepImport,
++    })
++  } while (referencesRemovedInThisPass)
++}
+ function getIdentifier(path3) {
+-  let parentPath = path3.parentPath;
++  let parentPath = path3.parentPath
+   if (parentPath.type === "VariableDeclarator") {
+-    let variablePath = parentPath;
+-    let name2 = variablePath.get("id");
+-    return name2.node.type === "Identifier" ? name2 : null;
++    let variablePath = parentPath
++    let name2 = variablePath.get("id")
++    return name2.node.type === "Identifier" ? name2 : null
+   }
+   if (parentPath.type === "AssignmentExpression") {
+-    let variablePath = parentPath;
+-    let name2 = variablePath.get("left");
+-    return name2.node.type === "Identifier" ? name2 : null;
++    let variablePath = parentPath
++    let name2 = variablePath.get("left")
++    return name2.node.type === "Identifier" ? name2 : null
+   }
+   if (path3.node.type === "ArrowFunctionExpression") {
+-    return null;
++    return null
+   }
+-  return path3.node.id && path3.node.id.type === "Identifier" ? path3.get("id") : null;
++  return path3.node.id && path3.node.id.type === "Identifier"
++    ? path3.get("id")
++    : null
+ }
+ function isIdentifierReferenced(ident) {
+-  let binding = ident.scope.getBinding(ident.node.name);
++  let binding = ident.scope.getBinding(ident.node.name)
+   if (binding?.referenced) {
+     if (binding.path.type === "FunctionDeclaration") {
+-      return !binding.constantViolations.concat(binding.referencePaths).every((ref) => ref.findParent((parent) => parent === binding?.path));
++      return !binding.constantViolations
++        .concat(binding.referencePaths)
++        .every((ref) => ref.findParent((parent) => parent === binding?.path))
+     }
+-    return true;
++    return true
+   }
+-  return false;
++  return false
+ }
+ 
+ // src/transform.ts
+ var isMacroBinding = (binding, macro) => {
+-  if (!t.isImportDeclaration(binding?.path.parent))
+-    return false;
+-  if (binding.path.parent.source.value !== name)
+-    return false;
+-  if (!t.isImportSpecifier(binding?.path.node))
+-    return false;
+-  let { imported } = binding.path.node;
+-  if (!t.isIdentifier(imported))
+-    return false;
+-  if (imported.name !== macro)
+-    return false;
+-  return true;
+-};
++  if (!t.isImportDeclaration(binding?.path.parent)) return false
++  if (binding.path.parent.source.value !== name) return false
++  if (!t.isImportSpecifier(binding?.path.node)) return false
++  let { imported } = binding.path.node
++  if (!t.isIdentifier(imported)) return false
++  if (imported.name !== macro) return false
++  return true
++}
+ var isMacro = (path3, macro) => {
+-  if (!t.isIdentifier(path3.node.callee))
+-    return false;
+-  let binding = path3.scope.getBinding(path3.node.callee.name);
+-  if (!binding)
+-    return false;
+-  if (!isMacroBinding(binding, macro))
+-    return false;
++  if (!t.isIdentifier(path3.node.callee)) return false
++  let binding = path3.scope.getBinding(path3.node.callee.name)
++  if (!binding) return false
++  if (!isMacroBinding(binding, macro)) return false
+   if (path3.node.arguments.length !== 1) {
+-    throw path3.buildCodeFrameError(`'${macro}' must take exactly one argument`);
++    throw path3.buildCodeFrameError(`'${macro}' must take exactly one argument`)
+   }
+-  return true;
+-};
++  return true
++}
+ var transform = (code, id, options) => {
+-  let ast = parse(code, { sourceType: "module" });
+-  new babel.File({ filename: void 0 }, { code, ast });
+-  const refs = findReferencedIdentifiers(ast);
++  let ast = parse(code, { sourceType: "module" })
++  new babel.File({ filename: void 0 }, { code, ast })
++  const refs = findReferencedIdentifiers(ast)
+   traverse(ast, {
+     CallExpression(path3) {
+       if (isMacro(path3, options.ssr ? "clientOnly$" : "serverOnly$")) {
+-        path3.replaceWith(t.identifier("undefined"));
++        path3.replaceWith(t.identifier("undefined"))
+       }
+       if (isMacro(path3, options.ssr ? "serverOnly$" : "clientOnly$")) {
+-        let arg = path3.node.arguments[0];
++        let arg = path3.node.arguments[0]
+         if (t.isExpression(arg)) {
+-          path3.replaceWith(arg);
++          path3.replaceWith(arg)
+         }
+       }
+     },
+     // ensure that macros are not manipulated at runtime
+     Identifier(path3) {
+-      if (t.isImportSpecifier(path3.parent))
+-        return;
+-      let binding = path3.scope.getBinding(path3.node.name);
+-      if (!binding)
+-        return;
+-      if (!isMacroBinding(binding, "serverOnly$") && !isMacroBinding(binding, "clientOnly$")) {
+-        return;
++      if (t.isImportSpecifier(path3.parent)) return
++      let binding = path3.scope.getBinding(path3.node.name)
++      if (!binding) return
++      if (
++        !isMacroBinding(binding, "serverOnly$") &&
++        !isMacroBinding(binding, "clientOnly$")
++      ) {
++        return
+       }
+-      if (t.isImportSpecifier(path3.parent))
+-        return;
++      if (t.isImportSpecifier(path3.parent)) return
+       throw path3.buildCodeFrameError(
+         `'${path3.node.name}' macro cannot be manipulated at runtime as it must be statically analyzable`
+-      );
++      )
+     },
+     // ensure that macros are not imported via namespace
+     ImportDeclaration(path3) {
+-      if (path3.node.source.value !== name)
+-        return;
++      if (path3.node.source.value !== name) return
+       path3.node.specifiers.forEach((specifier, i) => {
+         if (t.isImportNamespaceSpecifier(specifier)) {
+-          const subpath = path3.get(`specifiers.${i}`);
+-          if (Array.isArray(subpath))
+-            throw new Error("unreachable");
++          const subpath = path3.get(`specifiers.${i}`)
++          if (Array.isArray(subpath)) throw new Error("unreachable")
+           throw subpath.buildCodeFrameError(
+             `Namespace import is not supported by '${name}'`
+-          );
++          )
+         }
+-      });
+-    }
+-  });
+-  eliminateUnreferencedIdentifiers(ast, refs);
+-  return generate(ast, { sourceMaps: true, sourceFileName: id }, code);
+-};
++      })
++    },
++  })
++  eliminateUnreferencedIdentifiers(ast, refs)
++  return generate(ast, { sourceMaps: true, sourceFileName: id }, code)
++}
+ 
+ // src/utils.ts
+-import { normalizePath } from "vite";
+-import path from "path";
++import { normalizePath } from "vite"
++import path from "path"
+ function normalizeRelativePath(root, filePath) {
+-  return normalizePath(path.relative(root, filePath));
++  return normalizePath(path.relative(root, filePath))
+ }
+ 
+ // src/validate-id.ts
+-import { isMatch } from "micromatch";
+-function validateId({
+-  rule,
+-  id,
+-  env,
+-  invalidIds: denyIds,
+-  errorMessage
+-}) {
+-  const patterns = denyIds[env];
++const { isMatch } = await import("micromatch")
++function validateId({ rule, id, env, invalidIds: denyIds, errorMessage }) {
++  const patterns = denyIds[env]
+   if (!patterns || !patterns.length) {
+-    return;
++    return
+   }
+   for (const pattern of patterns) {
+-    if (typeof pattern === "string" && isMatch(id, pattern) || pattern instanceof RegExp && id.match(pattern)) {
++    if (
++      (typeof pattern === "string" && isMatch(id, pattern)) ||
++      (pattern instanceof RegExp && id.match(pattern))
++    ) {
+       let message = errorMessage({
+-        pattern: typeof pattern === "string" ? JSON.stringify(pattern) : pattern.toString()
+-      });
+-      throw new Error(`[${package_default.name}:${rule}] ${message}`);
++        pattern:
++          typeof pattern === "string"
++            ? JSON.stringify(pattern)
++            : pattern.toString(),
++      })
++      throw new Error(`[${package_default.name}:${rule}] ${message}`)
+     }
+   }
+ }
+ 
+ // src/validate-import.ts
+-function validateImport({
+-  id,
+-  denyImports,
+-  root,
+-  importer,
+-  env
+-}) {
++function validateImport({ id, denyImports, root, importer, env }) {
+   validateId({
+     rule: "denyImports",
+     id,
+     env,
+     invalidIds: denyImports,
+-    errorMessage: ({ pattern }) => [
+-      `Import denied in ${env} environment`,
+-      ` - Import: "${id}"`,
+-      ` - Importer: ${normalizeRelativePath(root, importer)}`,
+-      ` - Pattern: ${pattern}`
+-    ].join("\n")
+-  });
++    errorMessage: ({ pattern }) =>
++      [
++        `Import denied in ${env} environment`,
++        ` - Import: "${id}"`,
++        ` - Importer: ${normalizeRelativePath(root, importer)}`,
++        ` - Pattern: ${pattern}`,
++      ].join("\n"),
++  })
+ }
+ 
+ // src/validate-file.ts
+-function validateFile({
+-  absolutePath,
+-  denyFiles,
+-  root,
+-  importer,
+-  env
+-}) {
+-  const relativePath = normalizeRelativePath(root, absolutePath);
++function validateFile({ absolutePath, denyFiles, root, importer, env }) {
++  const relativePath = normalizeRelativePath(root, absolutePath)
+   validateId({
+     rule: "denyFiles",
+     id: relativePath,
+     env,
+     invalidIds: denyFiles,
+-    errorMessage: ({ pattern }) => [
+-      `File denied in ${env} environment`,
+-      ` - File: ${relativePath}`,
+-      ...importer ? [` - Importer: ${normalizeRelativePath(root, importer)}`] : [],
+-      ` - Pattern: ${pattern}`
+-    ].join("\n")
+-  });
++    errorMessage: ({ pattern }) =>
++      [
++        `File denied in ${env} environment`,
++        ` - File: ${relativePath}`,
++        ...(importer
++          ? [` - Importer: ${normalizeRelativePath(root, importer)}`]
++          : []),
++        ` - Pattern: ${pattern}`,
++      ].join("\n"),
++  })
+ }
+ 
+ // src/macro.ts
+@@ -426,78 +417,78 @@ var maybe = (_) => {
+       `${name}: unreplaced macro`,
+       "",
+       `Did you forget to add the '${name}' plugin to your Vite config?`,
+-      "\u{1F449} https://github.com/pcattori/vite-env-only#install"
++      "\u{1F449} https://github.com/pcattori/vite-env-only#install",
+     ].join("\n")
+-  );
+-};
+-var serverOnly$ = maybe;
+-var clientOnly$ = maybe;
++  )
++}
++var serverOnly$ = maybe
++var clientOnly$ = maybe
+ 
+ // src/index.ts
+ var src_default = ({ denyImports, denyFiles } = {}) => {
+-  let root;
+-  let command;
++  let root
++  let command
+   return [
+     {
+       name: "vite-plugin-env-only",
+       configResolved(config) {
+-        root = config.root;
+-        command = config.command;
++        root = config.root
++        command = config.command
+       },
+       async transform(code, id, options) {
+-        if (!code.includes(name))
+-          return;
+-        return transform(code, id, { ssr: options?.ssr === true });
+-      }
++        if (!code.includes(name)) return
++        return transform(code, id, { ssr: options?.ssr === true })
++      },
+     },
+-    denyImports ? {
+-      name: "vite-plugin-env-only-imports",
+-      enforce: "pre",
+-      resolveId(id, importer, options) {
+-        if (!importer) {
+-          return;
+-        }
+-        validateImport({
+-          id,
+-          denyImports,
+-          root,
+-          importer,
+-          env: options?.ssr ? "server" : "client"
+-        });
+-      }
+-    } : null,
+-    denyFiles ? {
+-      name: "vite-plugin-env-only-files",
+-      enforce: "pre",
+-      async resolveId(id, importer, options) {
+-        if (command !== "build" && importer?.endsWith(".html")) {
+-          return;
+-        }
+-        let isResolving = options?.custom?.["vite-plugin-env-only-files"] ?? false;
+-        if (isResolving) {
+-          return;
++    denyImports
++      ? {
++          name: "vite-plugin-env-only-imports",
++          enforce: "pre",
++          resolveId(id, importer, options) {
++            if (!importer) {
++              return
++            }
++            validateImport({
++              id,
++              denyImports,
++              root,
++              importer,
++              env: options?.ssr ? "server" : "client",
++            })
++          },
+         }
+-        options.custom = {
+-          ...options.custom,
+-          "vite-plugin-env-only-files": true
+-        };
+-        const resolvedId = (await this.resolve(id, importer, options))?.id;
+-        if (!resolvedId || !path2.isAbsolute(resolvedId)) {
+-          return;
++      : null,
++    denyFiles
++      ? {
++          name: "vite-plugin-env-only-files",
++          enforce: "pre",
++          async resolveId(id, importer, options) {
++            if (command !== "build" && importer?.endsWith(".html")) {
++              return
++            }
++            let isResolving =
++              options?.custom?.["vite-plugin-env-only-files"] ?? false
++            if (isResolving) {
++              return
++            }
++            options.custom = {
++              ...options.custom,
++              "vite-plugin-env-only-files": true,
++            }
++            const resolvedId = (await this.resolve(id, importer, options))?.id
++            if (!resolvedId || !path2.isAbsolute(resolvedId)) {
++              return
++            }
++            validateFile({
++              absolutePath: resolvedId,
++              denyFiles,
++              root,
++              importer,
++              env: options?.ssr ? "server" : "client",
++            })
++          },
+         }
+-        validateFile({
+-          absolutePath: resolvedId,
+-          denyFiles,
+-          root,
+-          importer,
+-          env: options?.ssr ? "server" : "client"
+-        });
+-      }
+-    } : null
+-  ];
+-};
+-export {
+-  clientOnly$,
+-  src_default as default,
+-  serverOnly$
+-};
++      : null,
++  ]
++}
++export { clientOnly$, src_default as default, serverOnly$ }

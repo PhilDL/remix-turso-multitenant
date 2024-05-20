@@ -3,10 +3,10 @@ import { and, eq } from "drizzle-orm";
 import {
   plans,
   subscriptions,
-  SubscriptionUpdate,
   type SelectPlans,
   type Subscription,
   type SubscriptionCreate,
+  type SubscriptionUpdate,
 } from "drizzle/schema";
 
 import { serviceDb } from "~/utils/db.server";
