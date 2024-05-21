@@ -126,7 +126,7 @@ export default function Index() {
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none">
-                    A Multitenant Starter Kit for Your Next Web App
+                    A Multitenant Starter Kit for your next web app
                   </h1>
                   <p className="max-w-[600px] text-gray-500 dark:text-gray-400 md:text-xl">
                     Quickly build and deploy a multitenant web application with
@@ -153,7 +153,7 @@ export default function Index() {
                 alt="Hero"
                 className="mx-auto aspect-square overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
                 height="550"
-                src="/placeholder.svg"
+                src="https://placehold.co/550x550"
                 width="550"
               />
             </div>
