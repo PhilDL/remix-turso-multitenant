@@ -14,6 +14,7 @@ export function serviceDb() {
       url: local,
       syncUrl: url,
       authToken,
+      syncInterval: 60,
       encryptionKey: env.SESSION_SECRET,
     }),
     {
