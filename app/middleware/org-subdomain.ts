@@ -20,6 +20,10 @@ export async function orgSubdomain({
   next,
 }: MiddlewareFunctionArgs) {
   const url = new URL(request.url);
+  if (url.hostname === env.PUBLIC_DOMAIN || url.hostname === "localhost") {
+    context.set(OrgContext, null);
+    return next();
+  }
   const subdomain = url.hostname.split(".")[0];
   let orgContext: OrgSubdomain | null = null;
   if (subdomain && subdomain !== env.PUBLIC_DOMAIN.split(".")[0]) {
