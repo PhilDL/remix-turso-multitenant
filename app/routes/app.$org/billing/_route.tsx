@@ -22,20 +22,19 @@ export let handle: ExternalScriptsHandle = {
 
 export const loader = async ({ context }: LoaderFunctionArgs) => {
   const { user, org } = context.get(UserAndOrgContext);
-  const subscription = org.planId
-    ? await SubscriptionsModel.getById(org.subscriptionId!)
-    : null;
+  const subscriptions = await SubscriptionsModel.getAllByOrganizationId(org.id);
+  console.log(`user have ${subscriptions.length} subscriptions`);
   const plans = await PlansModel.getAll();
   return json({
     plans,
     user,
     org,
-    subscription,
+    subscriptions,
   });
 };
 
 export default function Billing() {
-  const { subscription, org } = useLoaderData<typeof loader>();
+  const { subscriptions, org } = useLoaderData<typeof loader>();
   return (
     <div className="flex flex-col gap-8">
       <header>
@@ -47,8 +46,14 @@ export default function Billing() {
         </p>
       </header>
       <section className="shadow-xs flex max-w-3xl flex-col divide-y divide-input rounded-lg border border-input px-4 py-2.5 text-sm">
-        {subscription ? (
-          <SubscriptionCard subscription={subscription} org={org} />
+        {subscriptions?.length > 0 ? (
+          subscriptions.map((subscription) => (
+            <SubscriptionCard
+              key={subscription.id}
+              subscription={subscription}
+              org={org}
+            />
+          ))
         ) : (
           <NoSubscriptionCard />
         )}

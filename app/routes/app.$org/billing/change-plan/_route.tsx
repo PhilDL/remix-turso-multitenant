@@ -52,7 +52,6 @@ export default function ChangePlan() {
             })
           : null
       }
-      modal={false}
     >
       <DialogContent className="max-w-3xl">
         <DialogHeader>

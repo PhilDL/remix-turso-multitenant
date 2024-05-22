@@ -37,6 +37,20 @@ export const SubscriptionsModel = {
       .get();
   },
 
+  getAllByOrganizationId: async (organizationId: string) => {
+    const res = await serviceDb()
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.organizationId, organizationId))
+      .innerJoin(plans, eq(subscriptions.planId, plans.id))
+      .all();
+    if (!res) return [];
+    return res.map(({ subscription: sub, plans: resPlans }) => ({
+      ...sub,
+      plan: resPlans,
+    }));
+  },
+
   getByIdAndOrgId: async (
     id: string,
     organizationId: string,

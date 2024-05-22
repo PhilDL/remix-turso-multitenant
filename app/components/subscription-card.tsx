@@ -1,12 +1,14 @@
 import type { Subscription as LemonSqueezySubscription } from "@lemonsqueezy/lemonsqueezy.js";
-import { Link, useNavigation } from "@remix-run/react";
+import { Link, useFetchers, useNavigation } from "@remix-run/react";
 import type { SelectPlans, Subscription } from "drizzle/schema";
 import {
   BanIcon,
   CreditCardIcon,
+  Loader2Icon,
   LoaderCircleIcon,
   MoreHorizontal,
   PauseIcon,
+  PlayIcon,
   SquareUserRoundIcon,
 } from "lucide-react";
 
@@ -53,6 +55,10 @@ export const SubscriptionCard = ({
       ? `every ${subscription.plan.intervalCount} `
       : "every";
   const navigation = useNavigation();
+  const updateFetcher = useFetchers().find(
+    (f) => f.key === `fetcher-update-sub-${subscription.id}`,
+  )?.state;
+  const isUpdating = (updateFetcher && updateFetcher !== "idle") || false;
 
   return (
     <div className="flex flex-row flex-wrap items-center justify-between gap-4 px-2 py-3 text-sm lg:flex-nowrap">
@@ -67,7 +73,12 @@ export const SubscriptionCard = ({
                 ) && "text-inherit",
               )}
             >
-              {subscription.plan.productName} ({subscription.plan.name})
+              {subscription.plan.productName} ({subscription.plan.name}){" "}
+              {isUpdating && (
+                <span className="text-xs text-muted-foreground">
+                  Updating...
+                </span>
+              )}
             </h2>
           </div>
         </header>
@@ -75,11 +86,15 @@ export const SubscriptionCard = ({
           {!subscription.endsAt && (
             <p>{`${formattedPrice} ${formattedIntervalCount} ${subscription.plan.interval}`}</p>
           )}
-          <SubscriptionStatus
-            status={subscription.status as SubscriptionStatusType}
-            statusFormatted={subscription.statusFormatted}
-            isPaused={Boolean(subscription.isPaused)}
-          />
+          {isUpdating ? (
+            <Loader2Icon className="h-4 w-4 animate-spin" />
+          ) : (
+            <SubscriptionStatus
+              status={subscription.status as SubscriptionStatusType}
+              statusFormatted={subscription.statusFormatted}
+              isPaused={Boolean(subscription.isPaused)}
+            />
+          )}
 
           {subscription.trialEndsAt ||
             (subscription.renewsAt && (
@@ -94,54 +109,74 @@ export const SubscriptionCard = ({
       </div>
 
       <div className="flex items-center gap-2">
-        {isValidSubscription(subscription.status as SubscriptionStatusType) && (
-          <>
-            <AppLink
-              to={`/billing/change-plan`}
-              className={buttonVariants({ variant: "secondary" })}
-              prefetch="intent"
-            >
-              {navigation.state !== "idle" &&
-                navigation.location.pathname.endsWith(
-                  "billing/change-plan",
-                ) && <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />}
-              Change plan
-            </AppLink>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuItem>
-                  <PauseIcon className="mr-2 h-4 w-4" /> Pause payments
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCardIcon className="mr-2 h-4 w-4" /> Update payment
-                  method
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <SquareUserRoundIcon className="mr-2 h-4 w-4" /> Customer
-                  portal
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link
-                    to={appLink(
-                      `/billing/subscriptions/${subscription.id}/cancel`,
-                      org,
-                    )}
-                  >
-                    <BanIcon className="mr-2 h-4 w-4" /> Cancel
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </>
-        )}
+        {!isUpdating &&
+          isValidSubscription(
+            subscription.status as SubscriptionStatusType,
+          ) && (
+            <>
+              <AppLink
+                to={`/billing/change-plan`}
+                className={buttonVariants({ variant: "secondary" })}
+                prefetch="intent"
+              >
+                {navigation.state !== "idle" &&
+                  navigation.location.pathname.endsWith(
+                    "billing/change-plan",
+                  ) && (
+                    <LoaderCircleIcon className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                Change plan
+              </AppLink>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0">
+                    <span className="sr-only">Open menu</span>
+                    <MoreHorizontal className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to={appLink(
+                        `/billing/subscriptions/${subscription.id}/pause`,
+                        org,
+                      )}
+                    >
+                      {Boolean(subscription.isPaused) === true ? (
+                        <>
+                          <PlayIcon className="mr-2 h-4 w-4" /> Resume payments
+                        </>
+                      ) : (
+                        <>
+                          <PauseIcon className="mr-2 h-4 w-4" /> Pause payments
+                        </>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCardIcon className="mr-2 h-4 w-4" /> Update payment
+                    method
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <SquareUserRoundIcon className="mr-2 h-4 w-4" /> Customer
+                    portal
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to={appLink(
+                        `/billing/subscriptions/${subscription.id}/cancel`,
+                        org,
+                      )}
+                    >
+                      <BanIcon className="mr-2 h-4 w-4" /> Cancel
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          )}
       </div>
     </div>
   );

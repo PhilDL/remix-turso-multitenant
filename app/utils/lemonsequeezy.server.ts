@@ -8,6 +8,7 @@ import {
   listPrices,
   listProducts,
   listWebhooks,
+  updateSubscription,
   type Variant,
 } from "@lemonsqueezy/lemonsqueezy.js";
 import { type WebhookEvent } from "drizzle/schema";
@@ -300,4 +301,57 @@ export const cancelSub = async (id: string, orgId: string) => {
     throw new Error(`Failed to cancel Subscription #${id} in the database.`);
   }
   return cancelledSub;
+};
+
+export const toggleSubscriptionPause = async (
+  intent: "pause" | "unpause",
+  id: string,
+  orgId: string,
+) => {
+  configureLemonSqueezy();
+
+  const subscription = await SubscriptionsModel.getByIdAndOrgId(id, orgId);
+
+  if (!subscription) {
+    throw new Error("Subscription not found");
+  }
+
+  const updatedSubscription = await updateSubscription(
+    subscription.lemonSqueezyId,
+    {
+      pause:
+        intent === "pause"
+          ? {
+              mode: "void",
+            }
+          : null,
+    },
+  );
+
+  try {
+    if (!updatedSubscription?.data?.data?.attributes) {
+      throw new Error("No attributes from updated subscription");
+    }
+
+    const {
+      status,
+      status_formatted: statusFormatted,
+      ends_at: endsAt,
+      pause: pauseData,
+    } = updatedSubscription.data.data.attributes;
+
+    await SubscriptionsModel.update(subscription.id, {
+      status,
+      statusFormatted,
+      endsAt,
+      isPaused: pauseData !== null,
+    });
+  } catch (error) {
+    console.log(
+      `There was an error trying to ${intent ? "pause" : "unpause"} your subscription!`,
+    );
+    console.error(error);
+  }
+
+  return updatedSubscription;
 };
