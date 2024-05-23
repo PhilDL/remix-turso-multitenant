@@ -355,3 +355,43 @@ export const toggleSubscriptionPause = async (
 
   return updatedSubscription;
 };
+
+export const changePlan = async ({
+  currentSubscriptionId,
+  orgId,
+  newPlanId,
+}: {
+  currentSubscriptionId: string;
+  orgId: string;
+  newPlanId: string;
+}) => {
+  const [subscription, plan] = await Promise.all([
+    SubscriptionsModel.getByIdAndOrgId(currentSubscriptionId, orgId),
+    PlansModel.getById(newPlanId),
+  ]);
+  if (!subscription) {
+    throw new Error(`Subscription #${currentSubscriptionId} not found.`);
+  }
+  if (!plan) {
+    throw new Error(`Plan #${newPlanId} not found.`);
+  }
+
+  const updatedSubscription = await updateSubscription(
+    subscription.lemonSqueezyId,
+    {
+      variantId: Number(plan.variantId),
+    },
+  );
+
+  try {
+    await SubscriptionsModel.update(subscription.id, {
+      planId: plan.id,
+      price: plan.price,
+      endsAt: updatedSubscription.data?.data.attributes.ends_at,
+    });
+  } catch (error) {
+    console.error(error);
+  }
+
+  return updatedSubscription;
+};

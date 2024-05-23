@@ -37,7 +37,9 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
     return null;
   }
   const db = tenantDb({ url: org.dbUrl });
+  console.time("tenantDbAllPosts");
   const posts = await db.query.posts.findMany({});
+  console.timeEnd("tenantDbAllPosts");
   return { org, posts };
 };
 
